@@ -89,3 +89,42 @@ body {
   color: #00ffcc;
   transform: scale(1.05);
 }
+
+
+@media (max-width: 768px) {
+
+  .mesa {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .player {
+    flex: none;
+    width: 100%;
+  }
+
+  .roll-area .controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 5px;
+  }
+
+  .roll-area .controls input {
+    width: 60px;
+  }
+
+  .roll-area button {
+    width: 100%;
+    margin-top: 10px;
+  }
+
+  .resultado {
+    font-size: 20px;
+  }
+
+  .historico {
+    max-height: 200px;
+  }
+}
