@@ -5,20 +5,23 @@ body {
   color: white;
 }
 
+/* REORGANIZAÇÃO PARA GRID: 2 LINHAS DE 3 COLUNAS */
 .mesa {
-  display: flex;
-  height: 100vh;
-  gap: 10px;
-  padding: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Cria 3 colunas de tamanhos iguais */
+  gap: 12px;
+  padding: 12px;
+  box-sizing: border-box;
+  /* Nota: O conteúdo novo que você colocar abaixo da div ".mesa" vai fluir naturalmente! */
 }
 
 .player {
-  flex: 1;
   background: #2c2c2c;
   border-radius: 10px;
-  padding: 10px;
+  padding: 12px;
   display: flex;
   flex-direction: column;
+  box-sizing: border-box;
 }
 
 .player h2 {
@@ -68,9 +71,9 @@ body {
   margin-top: 10px;
 }
 
-/* Histórico */
+/* Histórico ajustado para o layout de grade */
 .historico {
-  flex: 1;
+  height: 150px; /* Altura fixa ideal para não esticar muito o card na vertical */
   background: #1a1a1a;
   border-radius: 8px;
   padding: 5px;
@@ -81,7 +84,6 @@ body {
   padding-left: 15px;
 }
 
-
 .historico li.latest {
   font-size: 18px;
   font-weight: bold;
@@ -90,16 +92,126 @@ body {
   transform: scale(1.05);
 }
 
+/* PAÍNEL QUE JUNTA FOTO E STATUS LADO A LADO */
+.perfil-status-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 15px;
+  padding: 0 5px;
+}
 
+/* FOTO QUADRADA COM BORDA ARREDONDADA FIADA EM 80PX */
+.avatar-quadrado {
+  width: 80px;
+  height: 80px; 
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: 12px;
+  background: #1a1a1a;
+  border: 1px solid #3a3a3a;
+  flex-shrink: 0; 
+}
+
+.avatar-quadrado img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* CONTAINER DAS BARRINHAS */
+.status-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  flex: 1; 
+}
+
+.status-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Letras PV, SAN, PE */
+.status-label {
+  font-size: 11px;
+  font-weight: bold;
+  width: 25px;
+  text-align: right;
+  color: #aaa;
+}
+
+/* Fundo cinza da barra */
+.bar-bg {
+  flex: 1;
+  height: 12px;
+  background: #1a1a1a;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #3a3a3a;
+}
+
+/* Preenchimento das cores */
+.bar-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Cores oficiais baseadas no sistema de Ordem Paranormal */
+.bar-fill.pv {
+  background: linear-gradient(90deg, #8b0000, #ff3333);
+}
+
+.bar-fill.sanidade {
+  background: linear-gradient(90deg, #004488, #3399ff);
+}
+
+.bar-fill.pe {
+  background: linear-gradient(90deg, #b8860b, #ffd700);
+}
+
+/* CAIXINHAS DE NÚMERO DOS STATUS */
+.status-inputs {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.status-inputs input {
+  width: 35px;
+  padding: 2px 4px;
+  font-size: 11px;
+  text-align: center;
+  border: none;
+  border-radius: 4px;
+  background: #1a1a1a;
+  color: white;
+  border: 1px solid #3a3a3a;
+}
+
+/* Esconde as setinhas padrão do input do navegador */
+.status-inputs input::-webkit-outer-spin-button,
+.status-inputs input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.status-inputs span {
+  font-size: 11px;
+  color: #666;
+}
+
+/* Ajuste Responsivo para Celulares */
 @media (max-width: 768px) {
 
   .mesa {
-    flex-direction: column;
-    height: auto;
+    grid-template-columns: 1fr; /* No celular vira uma única coluna vertical */
   }
 
   .player {
-    flex: none;
     width: 100%;
   }
 
