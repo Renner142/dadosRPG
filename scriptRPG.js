@@ -6,6 +6,40 @@ const supabaseClient = window.supabase.createClient(
 // =======================================================
 // CONTROLE DE HISTÓRICO DE DADOS (CARREGAMENTO INICIAL)
 // =======================================================
+function montarTextoHistorico(roll) {
+  const resultados = Array.isArray(roll.results) ? roll.results : [];
+  const hora = roll.created_at ? formatarHora(roll.created_at) : formatarHora(new Date());
+  const nome = roll.nome_rolagem || "";
+  
+  // Tag estilizada do Modo de Cálculo
+  const modoTag = roll.tipo_calculo === "maior" 
+    ? `<span style="color: #ff4757; font-weight: bold; font-size: 10px; background: rgba(255,71,87,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,71,87,0.3); display: inline-block;">MAIOR</span>` 
+    : `<span style="color: #2ed573; font-weight: bold; font-size: 10px; background: rgba(46,213,115,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(46,213,115,0.3); display: inline-block;">SOMA</span>`;
+  
+  // RETORNO ATUALIZADO: Estrutura em caixinha com o horário na direita embaixo
+  return `
+    <div style="display: flex; flex-direction: column; width: 100%; gap: 4px; padding: 4px 0; text-align: left;">
+      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+        <strong style="color: #ff9f43; font-size: 16px;">${nome}</strong> 
+        <span style="color: #888; font-size: 11px;">(${roll.qtd}d${roll.faces})</span> 
+        ${modoTag}
+      </div>
+      
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
+        <div style="display: flex; align-items: center; gap: 8px;">
+          <span style="color: #666; font-size: 12px;">➔</span>
+          <strong style="color: #00ffff; font-size: 16px; text-shadow: 0 0 6px rgba(0,255,255,0.5);">${roll.total}</strong>
+          <span style="color: #666; font-size: 11px;">[${resultados.join(", ")}]</span>
+        </div>
+        
+        <div style="color: #444; font-size: 15px; padding-left: 10px; padding-right: 10px; user-select: none;">
+          ${hora}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 async function carregarHistorico() {
   const { data, error } = await supabaseClient
     .from("rolls")
@@ -28,12 +62,10 @@ async function carregarHistorico() {
     if (!playerEl) return;
 
     const historico = playerEl.querySelector(".historico ul");
-    const resultados = Array.isArray(roll.results) ? roll.results : [];
-    const hora = formatarHora(roll.created_at);
-    const texto = `[${hora}] ${roll.qtd}d${roll.faces} → ${roll.total} [${resultados.join(", ")}]`;
-
     const li = document.createElement("li");
-    li.textContent = texto;
+    
+    // Configurado com innerHTML para aceitar o estilo visual
+    li.innerHTML = montarTextoHistorico(roll);
 
     if (!primeiroPorPlayer.has(roll.player)) {
       li.classList.add("latest");
@@ -44,11 +76,41 @@ async function carregarHistorico() {
   });
 }
 
+function ligarRealtimeDeDados() {
+  supabaseClient
+    .channel("rolls-realtime")
+    .on(
+      "postgres_changes",
+      { event: "INSERT", schema: "public", table: "rolls" },
+      (payload) => {
+        const roll = payload.new;
+        const playerEl = document.querySelector(`.player[data-player="${roll.player}"]`);
+        if (!playerEl) return;
+
+        const historico = playerEl.querySelector(".historico ul");
+        const li = document.createElement("li");
+        
+        // Configurado com innerHTML para o tempo real também ficar bonito
+        li.innerHTML = montarTextoHistorico(roll);
+
+        historico.querySelectorAll("li").forEach(el => {
+          el.classList.remove("latest");
+        });
+
+        li.classList.add("latest");
+        historico.prepend(li);
+
+        if (historico.children.length > 10) {
+          historico.removeChild(historico.lastChild);
+        }
+      }
+    )
+    .subscribe();
+}
+
 // =======================================================
 // CONTROLE DE BARRAS DE STATUS COM SUPABASE REALTIME
 // =======================================================
-
-// 1. Função auxiliar para desenhar a barra na tela de forma visual
 function renderizarBarraVisual(row) {
   const atualInput = row.querySelector(".status-atual");
   const maxInput = row.querySelector(".status-max");
@@ -59,7 +121,6 @@ function renderizarBarraVisual(row) {
   let atual = parseInt(atualInput.value) || 0;
   let max = parseInt(maxInput.value) || 0;
 
-  // Se o máximo for zero ou menor, esvazia a barra para evitar erros matemáticos
   if (max <= 0) {
     barFill.style.width = "0%";
     return;
@@ -73,10 +134,7 @@ function renderizarBarraVisual(row) {
   barFill.style.width = `${porcentagem}%`;
 }
 
-// 2. Carrega os dados iniciais do banco de dados e aplica nos inputs
 async function carregarStatusIniciais() {
-  console.log("Tentando buscar dados iniciais da tabela status_players...");
-  
   const { data, error } = await supabaseClient
     .from("status_players")
     .select("*");
@@ -86,23 +144,10 @@ async function carregarStatusIniciais() {
     return;
   }
 
-  console.log("Dados brutos recebidos do Supabase:", data);
-
-  if (!data || data.length === 0) {
-    console.warn("A tabela do banco de dados retornou vazia! Execute os INSERTS no SQL Editor.");
-    return;
-  }
-
-  // Preenche cada player com seus respectivos dados salvos
   data.forEach(status => {
-    // Busca o bloco do player garantindo que o ID bata (ex: data-player="dick")
     const playerEl = document.querySelector(`.player[data-player="${status.player.toLowerCase().trim()}"]`);
-    if (!playerEl) {
-      console.warn(`Aviso: Player '${status.player}' está no banco, mas não foi encontrado no HTML.`);
-      return;
-    }
+    if (!playerEl) return;
 
-    // Mapeamento explícito para garantir que o HTML 'sanidade' converse perfeitamente com o banco
     const mapeamento = [
       { tipoHtml: "pv", bancoPrefixo: "pv" },
       { tipoHtml: "sanidade", bancoPrefixo: "sanidade" },
@@ -123,10 +168,8 @@ async function carregarStatusIniciais() {
       }
     });
   });
-  console.log("Renderização inicial das barras concluída com sucesso!");
 }
 
-// 3. Monitora os inputs digitados e salva no banco (com timer para não sobrecarregar)
 function inicializarEventosDeDigitacao() {
   let timeouts = {};
 
@@ -138,44 +181,32 @@ function inicializarEventosDeDigitacao() {
         const row = input.closest(".status-row");
         if (!row) return;
         
-        const tipoStatus = row.dataset.status; // 'pv', 'sanidade' ou 'pe'
+        const tipoStatus = row.dataset.status;
 
-        // Renderiza na tela do usuário imediatamente de forma local
         renderizarBarraVisual(row);
 
         const atual = parseInt(row.querySelector(".status-atual").value) || 0;
         const max = parseInt(row.querySelector(".status-max").value) || 0;
 
-        // Monta o payload dinâmico para enviar ao banco utilizando o prefixo correto
         let dadosAtualizacao = {};
         dadosAtualizacao[`${tipoStatus}_atual`] = atual;
         dadosAtualizacao[`${tipoStatus}_max`] = max;
 
-        // "Debounce": Espera 500ms após o usuário parar de digitar para salvar
         clearTimeout(timeouts[playerId + tipoStatus]);
         timeouts[playerId + tipoStatus] = setTimeout(async () => {
-          console.log(`Enviando atualização para o player [${playerId}] - Status [${tipoStatus}]:`, dadosAtualizacao);
-          
-          const { error } = await supabaseClient
+          await supabaseClient
             .from("status_players")
             .upsert({ 
               player: playerId, 
               ...dadosAtualizacao,
               updated_at: new Date()
             }, { onConflict: 'player' });
-
-          if (error) {
-            console.error(`Erro ao salvar dados de ${playerId}:`, error);
-          } else {
-            console.log(`Dados de ${playerId} salvos com sucesso no Supabase.`);
-          }
         }, 500);
       });
     });
   });
 }
 
-// 4. Se conecta ao Canal Realtime para ouvir mudanças vindas de outras telas
 function ligarRealtimeDeStatus() {
   supabaseClient
     .channel("mudancas-status")
@@ -183,9 +214,7 @@ function ligarRealtimeDeStatus() {
       "postgres_changes",
       { event: "UPDATE", schema: "public", table: "status_players" },
       (payload) => {
-        console.log("Mudança em tempo real detectada na tabela status_players:", payload);
         const status = payload.new;
-        
         const playerEl = document.querySelector(`.player[data-player="${status.player.toLowerCase().trim()}"]`);
         if (!playerEl) return;
 
@@ -201,7 +230,6 @@ function ligarRealtimeDeStatus() {
             const inputAtual = row.querySelector(".status-atual");
             const inputMax = row.querySelector(".status-max");
 
-            // Só altera o input se o usuário não estiver com o cursor focado nele no momento
             if (inputAtual && document.activeElement !== inputAtual) {
               inputAtual.value = status[`${bancoPrefixo}_atual`] ?? 0;
             }
@@ -212,44 +240,6 @@ function ligarRealtimeDeStatus() {
             renderizarBarraVisual(row);
           }
         });
-      }
-    )
-    .subscribe((status) => {
-      console.log("Inscrição no canal Realtime de status:", status);
-    });
-}
-// =======================================================
-// ESCUTA REALTIME DE NOVAS ROLAGENS DE DADOS
-// =======================================================
-function ligarRealtimeDeDados() {
-  supabaseClient
-    .channel("rolls-realtime")
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "rolls" },
-      (payload) => {
-        const roll = payload.new;
-        const playerEl = document.querySelector(`.player[data-player="${roll.player}"]`);
-        if (!playerEl) return;
-
-        const historico = playerEl.querySelector(".historico ul");
-        const resultados = Array.isArray(roll.results) ? roll.results : [];
-        const hora = roll.created_at ? formatarHora(roll.created_at) : formatarHora(new Date());
-        const texto = `[${hora}] ${roll.qtd}d${roll.faces} → ${roll.total} [${resultados.join(", ")}]`;
-
-        const li = document.createElement("li");
-        li.textContent = texto;
-
-        historico.querySelectorAll("li").forEach(el => {
-          el.classList.remove("latest");
-        });
-
-        li.classList.add("latest");
-        historico.prepend(li);
-
-        if (historico.children.length > 10) {
-          historico.removeChild(historico.lastChild);
-        }
       }
     )
     .subscribe();
@@ -264,24 +254,46 @@ function inicializarBotoesDeRolagem() {
     const resultadoEl = player.querySelector(".resultado");
 
     btn.addEventListener("click", async () => {
-      console.log("Botão clicado!");
-
       const qtd = parseInt(player.querySelector(".qtd").value) || 1;
       const faces = parseInt(player.querySelector(".faces").value) || 20;
+      const nomeRolagem = player.querySelector(".nome-rolagem").value.trim() || "";
+      const tipoCalculo = player.querySelector(".tipo-calculo").value;
 
       let resultados = [];
-      let soma = 0;
-
       for (let i = 0; i < qtd; i++) {
         const roll = Math.floor(Math.random() * faces) + 1;
         resultados.push(roll);
-        soma += roll;
+      }
+
+      let totalExibido = 0;
+      if (tipoCalculo === "maior") {
+        totalExibido = Math.max(...resultados);
+      } else {
+        totalExibido = resultados.reduce((a, b) => a + b, 0);
       }
 
       const agora = new Date();
       const hora = formatarHora(agora);
-      const texto = `${qtd}d${faces} → ${soma} [${resultados.join(", ")}]`;
-      resultadoEl.textContent = texto;
+      const rotuloCalculo = tipoCalculo === "maior" ? "Maior Dado" : "Soma Total";
+      
+      // Injeta a caixinha moderna com visual Neon e o relógio no canto direito inferior
+      resultadoEl.innerHTML = `
+        <div style="background: rgba(10, 10, 10, 0.7); padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; border-left: 4px solid #00ffff; margin-top: 8px; text-align: left; position: relative;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+            <span style="color: #ff9f43; font-weight: bold; font-size: 13px;">🎲 ${nomeRolagem}</span>
+            <span style="color: #555; font-size: 10px;">${rotuloCalculo} (${qtd}d${faces})</span>
+          </div>
+          
+          <div style="font-size: 22px; font-weight: bold; color: #fff; margin: 4px 0;">
+            Total: <span style="color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.6);">${totalExibido}</span>
+          </div>
+          
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2px;">
+            <span style="color: #777; font-size: 11px;">Dados: [ ${resultados.join(" , ")} ]</span>
+            <span style="color: #333; font-size: 20px;">${hora}</span>
+          </div>
+        </div>
+      `;
 
       const playerId = player.dataset.player;
 
@@ -290,14 +302,16 @@ function inicializarBotoesDeRolagem() {
         qtd,
         faces,
         results: resultados,
-        total: soma
+        total: totalExibido,
+        nome_rolagem: nomeRolagem,
+        tipo_calculo: tipoCalculo
       });
     });
   });
 }
 
 // =======================================================
-// CARREGADOR ÚNICO INICIAL DA PÁGINA (CORREÇÃO CONFLITOS)
+// CARREGADOR ÚNICO INICIAL DA PÁGINA
 // =======================================================
 window.addEventListener("DOMContentLoaded", () => {
   carregarHistorico();
@@ -308,7 +322,6 @@ window.addEventListener("DOMContentLoaded", () => {
   ligarRealtimeDeDados();
 });
 
-// Função utilitária de horas
 function formatarHora(dateString) {
   const d = new Date(dateString);
   const h = String(d.getHours()).padStart(2, "0");
