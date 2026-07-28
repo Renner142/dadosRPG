@@ -3,148 +3,368 @@ body {
   font-family: Arial, sans-serif;
   background: #1e1e1e;
   color: white;
+  overflow-x: hidden;
 }
 
-/* REORGANIZAÇÃO PARA GRID: 2 LINHAS DE 3 COLUNAS */
-.mesa {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr); /* Cria 3 colunas de tamanhos iguais */
-  gap: 12px;
-  padding: 12px;
+/* =======================================================
+   CONTROLE DE TELAS
+   ======================================================= */
+.screen {
+  display: none; /* Esconde todas as telas por padrão */
+}
+
+.screen.active {
+  display: block; /* Exibe apenas a tela ativa */
+}
+
+/* =======================================================
+   ESTILO DA TELA DE CAMPANHA
+   ======================================================= */
+.campaign-select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  text-align: center;
+  padding: 20px;
   box-sizing: border-box;
-  /* Nota: O conteúdo novo que você colocar abaixo da div ".mesa" vai fluir naturalmente! */
+  background: radial-gradient(circle, #2c2c2c 0%, #111111 100%);
 }
 
+.campaign-select-container h1 {
+  font-size: 2.2rem;
+  margin-bottom: 5px;
+  color: #ff9f43;
+}
+
+.campaign-select-container p {
+  color: #888;
+  margin-bottom: 30px;
+}
+
+.campaign-grid {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.campaign-card {
+  position: relative;
+  background: #1e1e1e;
+  border: 2px solid #3a3a3a;
+  border-radius: 12px;
+  padding: 25px 35px;
+  color: white;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  min-width: 220px;
+  text-align: center;
+}
+
+.campaign-card:hover:not(:disabled) {
+  border-color: #ff9f43;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(255, 159, 67, 0.2);
+}
+
+.campaign-card h2 {
+  margin: 10px 0 5px 0;
+  font-size: 1.3rem;
+}
+
+.campaign-card p {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.campaign-card.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-style: dashed;
+}
+
+.campaign-badge {
+  position: absolute;
+  top: -10px;
+  right: 15px;
+  background: #ff9f43;
+  color: #111;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 10px;
+  text-transform: uppercase;
+}
+
+/* =======================================================
+   ESTILO TELA DE SELEÇÃO DE PERSONAGEM
+   ======================================================= */
+.character-select-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 30px 20px;
+  box-sizing: border-box;
+  background: radial-gradient(circle, #2c2c2c 0%, #111111 100%);
+  position: relative;
+}
+
+.btn-voltar {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: #2a2a2a;
+  color: #ccc;
+  border: 1px solid #444;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-voltar:hover {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+.character-select-container h1 {
+  font-size: 2rem;
+  color: #ff9f43;
+  margin-bottom: 5px;
+}
+
+.character-select-container p {
+  color: #888;
+  margin-bottom: 30px;
+  text-align: center;
+}
+
+.character-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  max-width: 900px;
+}
+
+.char-select-card {
+  background: #1e1e1e;
+  border: 2px solid #333;
+  border-radius: 12px;
+  padding: 15px;
+  width: 130px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.char-select-card:hover {
+  border-color: #00ffff;
+  transform: translateY(-5px);
+  box-shadow: 0 6px 15px rgba(0, 255, 255, 0.2);
+}
+
+.char-avatar {
+  width: 90px;
+  height: 90px;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid #444;
+  margin-bottom: 10px;
+}
+
+.char-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.char-select-card h3 {
+  font-size: 14px;
+  margin: 5px 0 0;
+  color: #fff;
+  text-align: center;
+}
+
+/* Card Mestre */
+.char-select-card.master-card {
+  border-color: #ff9f43;
+  background: #251e18;
+}
+
+.char-select-card.master-card:hover {
+  border-color: #ffb067;
+  box-shadow: 0 6px 15px rgba(255, 159, 67, 0.3);
+}
+
+.master-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #111;
+  font-size: 38px;
+}
+
+.char-select-card.master-card p {
+  font-size: 10px;
+  color: #aaa;
+  margin-top: 2px;
+}
+
+/* =======================================================
+   DASHBOARD / MESA DE JOGO (TRAVADO NA TELA)
+   ======================================================= */
+
+/* Barra Superior */
+.top-bar {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  padding: 12px 20px;
+  background: #111;
+  border-bottom: 2px solid #333;
+  box-sizing: border-box;
+  height: 60px;
+}
+
+.top-bar h2 {
+  margin: 0;
+  color: #ff9f43;
+  font-size: 1.2rem;
+}
+
+.btn-trocar {
+  background: #2a2a2a;
+  color: #ff9f43;
+  border: 1px solid #ff9f43;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: 0.2s;
+}
+
+.btn-trocar:hover {
+  background: #ff9f43;
+  color: #111;
+}
+
+/* =======================================================
+   ESTRUTURA EM 3 COLUNAS (AJUSTE PERFEITO DE ALTURA)
+   ======================================================= */
+.dashboard-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 20px;
+  padding: 15px;
+  box-sizing: border-box;
+  height: calc(100vh - 60px); /* Trava o layout na altura máxima da tela */
+  overflow: hidden;
+}
+
+.left-column,
+.middle-column,
+.right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  height: 100%;
+  min-height: 0; /* Permite que os itens filhos encolham e habilitem scroll */
+}
+
+.left-column h3, 
+.middle-column h3, 
+.right-column h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #ccc;
+  flex-shrink: 0;
+}
+
+/* =======================================================
+   COLUNA DO MEIO: ALIADOS DINÂMICOS
+   ======================================================= */
+#allies-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto; /* Se adicionar 1 ou 100 aliados, rola dentro dessa coluna */
+  padding-right: 5px;
+  flex: 1;
+}
+
+/* =======================================================
+   CARDS DE PERSONAGENS E ALIADOS
+   ======================================================= */
 .player {
   background: #2c2c2c;
   border-radius: 10px;
-  padding: 12px;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
+  border: 1px solid #3a3a3a;
+  flex-shrink: 0;
 }
 
 .player h2 {
   text-align: center;
-  margin: 5px 0 10px;
+  margin: 0 0 12px 0;
+  color: #fff;
+  font-size: 1.2rem;
 }
 
-/* Área do dado */
-.roll-area {
-  text-align: center;
-  margin-bottom: 10px;
+/* Destaque para o slot principal */
+#featured-slot {
+  flex-shrink: 0;
 }
 
-.roll-area .controls {
-  margin-bottom: 10px;
+#featured-slot .player {
+  border: 2px solid #ff9f43;
+  box-shadow: 0 0 12px rgba(255, 159, 67, 0.15);
 }
 
-.roll-area .controls input {
-  width: 50px;
-  padding: 5px;
-  margin: 0 5px;
-  border: none;
-  border-radius: 5px;
-  background: #3a3a3a;
-  color: white;
+/* Quando estiver no container de Aliados */
+#allies-grid .player {
+  background: #252525;
+  border: 1px solid #383838;
 }
 
-.roll-area .controls span {
-  margin: 0 5px;
+/* Esconde a área de dados nos aliados */
+#allies-grid .player .roll-area {
+  display: none !important;
 }
 
-.roll-area button {
-  padding: 10px;
-  border: none;
-  border-radius: 8px;
-  background: #4CAF50;
-  color: white;
-  cursor: pointer;
+#allies-grid .player h2 {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
 }
 
-.roll-area button:hover {
-  background: #45a049;
-}
-
-.resultado {
-  font-size: 24px;
-  margin-top: 10px;
-}
-
-/* Histórico ajustado para o layout de grade */
-.historico {
-  height: 150px; /* Altura fixa ideal para não esticar muito o card na vertical */
-  background: #1a1a1a;
-  border-radius: 8px;
-  padding: 5px;
-  overflow-y: auto;
-  overflow-x: hidden !important
-}
-
-.historico ul {
-  padding-left: 15px;
-}
-
-.historico li.latest {
-  font-size: 18px;
-  font-weight: bold;
-  opacity: 1;
-  color: #00ffcc;
-  transform: scale(1.05);
-}
-
-/* 1. Define a largura da barra vertical (apenas para Chrome, Edge e Safari) */
-.historico::-webkit-scrollbar {
-  width: 6px; /* Deixa a barra bem fininha e discreta */
-}
-
-/* 2. O fundo da canaleta por onde a barra corre */
-.historico::-webkit-scrollbar-track {
-  background: #111111; /* Um preto bem escuro para sumir com o cinza padrão */
-  border-radius: 4px;
-}
-
-/* 3. O "trilho" ou o "pino" que o usuário arrasta */
-.historico::-webkit-scrollbar-thumb {
-  background: #444444; /* Cinza escuro elegante */
-  border-radius: 4px;
-  border: 1px solid #1a1a1a; /* Cria uma leve separação visual */
-}
-
-/* 4. Efeito de brilho quando o usuário passa o mouse por cima do pino */
-.historico::-webkit-scrollbar-thumb:hover {
-  background: #00ffff; /* Acende em Neon Ciano, combinando com o resultado dos dados! */
-  box-shadow: 0 0 8px rgba(0, 255, 255, 0.5);
-}
-
-/* Compatibilidade extra para o navegador Firefox */
-@supports (scrollbar-width: thin) {
-  .historico {
-    scrollbar-width: thin;
-    scrollbar-color: #444444 #111111;
-  }
-}
-
-
-/* PAÍNEL QUE JUNTA FOTO E STATUS LADO A LADO */
+/* =======================================================
+   PAINEL DE PERFIL E STATUS (BARRAS PV, SAN, PE)
+   ======================================================= */
 .perfil-status-container {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-bottom: 15px;
-  padding: 0 5px;
+  margin-bottom: 10px;
 }
 
-/* FOTO QUADRADA COM BORDA ARREDONDADA FIADA EM 80PX */
 .avatar-quadrado {
   width: 80px;
-  height: 80px; 
+  height: 80px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 10px;
   background: #1a1a1a;
   border: 1px solid #3a3a3a;
-  flex-shrink: 0; 
+  flex-shrink: 0;
 }
 
 .avatar-quadrado img {
@@ -154,12 +374,11 @@ body {
   object-position: center top;
 }
 
-/* CONTAINER DAS BARRINHAS */
 .status-container {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  flex: 1; 
+  flex: 1;
 }
 
 .status-row {
@@ -168,16 +387,14 @@ body {
   gap: 8px;
 }
 
-/* Letras PV, SAN, PE */
 .status-label {
   font-size: 11px;
   font-weight: bold;
-  width: 25px;
+  width: 28px;
   text-align: right;
   color: #aaa;
 }
 
-/* Fundo cinza da barra */
 .bar-bg {
   flex: 1;
   height: 12px;
@@ -187,14 +404,13 @@ body {
   border: 1px solid #3a3a3a;
 }
 
-/* Preenchimento das cores */
 .bar-fill {
   height: 100%;
   border-radius: 3px;
   transition: width 0.3s ease;
 }
 
-/* Cores oficiais baseadas no sistema de Ordem Paranormal */
+/* Cores Oficiais de Ordem Paranormal */
 .bar-fill.pv {
   background: linear-gradient(90deg, #8b0000, #ff3333);
 }
@@ -207,7 +423,6 @@ body {
   background: linear-gradient(90deg, #b8860b, #ffd700);
 }
 
-/* CAIXINHAS DE NÚMERO DOS STATUS */
 .status-inputs {
   display: flex;
   align-items: center;
@@ -219,14 +434,12 @@ body {
   padding: 2px 4px;
   font-size: 11px;
   text-align: center;
-  border: none;
   border-radius: 4px;
   background: #1a1a1a;
   color: white;
   border: 1px solid #3a3a3a;
 }
 
-/* Esconde as setinhas padrão do input do navegador */
 .status-inputs input::-webkit-outer-spin-button,
 .status-inputs input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -239,24 +452,204 @@ body {
 }
 
 
+/* =======================================================
+   ÁREA DE ROLAGEM DE DADOS (ORGANIZADA E INTUITIVA)
+   ======================================================= */
+.roll-area {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #3a3a3a;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+/* 1. Nome do Teste (Topo) */
+.roll-area .nome-rolagem {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 6px;
+  background: #181818;
+  color: #fff;
+  font-size: 12px;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s;
+}
 
+.roll-area .nome-rolagem:focus {
+  border-color: #ff9f43;
+}
+
+/* 2. Container dos Dados: Qtd, Lados, Modo e Modificador */
+.roll-area .controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  background: #181818;
+  padding: 8px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Grupo Dado (Ex: 1 d 20) */
+.roll-area .dice-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.roll-area .dice-group span {
+  color: #888;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+/* Estilo geral dos Inputs e Selects internos */
+.roll-area .controls input, 
+.roll-area .controls select {
+  border: 1px solid #3a3a3a;
+  border-radius: 5px;
+  background: #242424;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 4px;
+  outline: none;
+  text-align: center;
+  transition: border-color 0.2s;
+}
+
+.roll-area .controls input:focus, 
+.roll-area .controls select:focus {
+  border-color: #ff9f43;
+}
+
+/* Campos numéricos específicos (Qtd, Lados, Modificador) */
+.roll-area input.qtd-dados,
+.roll-area input.qtd,
+.roll-area input.faces-dado,
+.roll-area input.faces {
+  width: 36px;
+  font-weight: bold;
+  color: #ff9f43;
+}
+
+.roll-area input.modificador {
+  width: 40px;
+  font-weight: bold;
+  color: #2ed573; /* Destaque verde para o modificador */
+}
+
+/* Seletor Maior / Soma */
+.roll-area select.tipo-calculo {
+  cursor: pointer;
+  background: #2a2a2a;
+  font-weight: bold;
+  padding: 5px 6px;
+}
+
+/* 3. Botão Principal de Rolar Dados */
+.roll-btn {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(135deg, #ff9f43 0%, #e67e22 100%);
+  color: #111;
+  font-size: 13px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.2s ease;
+}
+
+.roll-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 159, 67, 0.3);
+}
+
+.roll-btn:active {
+  transform: translateY(1px);
+}
 
 /* =======================================================
-   ESTILIZAÇÃO DA ÁREA DE TESTES LOCAL
+   CAIXAS DE HISTÓRICO (GERAL E PESSOAL)
+   ======================================================= */
+.history-box-container {
+  background: #181818;
+  border: 1px solid #333;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0; /* Previne estouro vertical */
+  box-sizing: border-box;
+}
+
+.historico-box {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.historico-box ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.historico-box li.empty-msg {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+  text-align: center;
+  padding: 10px;
+}
+
+/* Barra de rolagem discreta e elegante para todas as áreas de scroll */
+.historico-box::-webkit-scrollbar,
+#allies-grid::-webkit-scrollbar {
+  width: 6px;
+}
+
+.historico-box::-webkit-scrollbar-track,
+#allies-grid::-webkit-scrollbar-track {
+  background: #111111;
+  border-radius: 4px;
+}
+
+.historico-box::-webkit-scrollbar-thumb,
+#allies-grid::-webkit-scrollbar-thumb {
+  background: #444444;
+  border-radius: 4px;
+}
+
+.historico-box::-webkit-scrollbar-thumb:hover,
+#allies-grid::-webkit-scrollbar-thumb:hover {
+  background: #ff9f43;
+}
+
+/* =======================================================
+   ÁREA DE TESTES LOCAL
    ======================================================= */
 .test-zone-container {
   background: #222222;
-  margin: 20px 12px;
+  margin: 20px 15px;
   padding: 15px;
   border-radius: 10px;
-  border: 1px dashed #444; /* Borda tracejada para diferenciar do banco */
+  border: 1px dashed #444;
 }
 
 .test-zone-container h2 {
   margin-top: 0;
   color: #aaa;
-  font-size: 16px;
+  font-size: 15px;
   text-transform: uppercase;
   letter-spacing: 1px;
 }
@@ -267,7 +660,6 @@ body {
   align-items: flex-start;
 }
 
-/* Deixa a área de botões com tamanho fixo e o histórico esticando */
 .test-zone-content .local-roll {
   flex-shrink: 0;
   width: 160px;
@@ -275,17 +667,17 @@ body {
 
 .test-zone-content .local-historico {
   flex: 1;
-  height: 180px; /* Um pouco mais alto para ver mais testes */
+  height: 180px;
 }
 
 .roll-btn-local {
   padding: 10px;
   border: none;
   border-radius: 8px;
-  background: #ff9f43; /* Cor laranja para diferenciar do botão verde dos players */
+  background: #ff9f43;
   color: white;
   cursor: pointer;
-  width: 120px;
+  width: 100%;
   font-weight: bold;
 }
 
@@ -293,55 +685,94 @@ body {
   background: #e68a2e;
 }
 
-/* Reaplica o visual da barra bonita na caixa local */
-.local-historico::-webkit-scrollbar { width: 6px; }
-.local-historico::-webkit-scrollbar-track { background: #111; border-radius: 4px; }
-.local-historico::-webkit-scrollbar-thumb { background: #444; border-radius: 4px; }
-.local-historico::-webkit-scrollbar-thumb:hover { background: #ff9f43; box-shadow: 0 0 8px rgba(255, 159, 67, 0.5); }
 
 
 
 
 
 
+/* =======================================================
+   VISÃO DO MESTRE (CARDS ESPAÇADOS SEM ESTICAR O CONTEÚDO)
+   ======================================================= */
+
+/* 1. Esconde o Histórico Pessoal e o título extra da direita no Mestre */
+.modo-mestre .left-column .history-box-container,
+.modo-mestre .right-column > h3 {
+  display: none !important;
+}
+
+/* 2. Oculta os botões e áreas de rolagem de dados nos cards */
+.modo-mestre .player .roll-area {
+  display: none !important;
+}
+
+/* 3. Colunas Laterais: Distribui os cards com espaço uniforme (sem grudar no teto/chão) */
+.modo-mestre #featured-slot,
+.modo-mestre #allies-grid {
+  display: flex !important;
+  flex-direction: column;
+  justify-content: space-evenly; /* Espaço igual no topo, no meio e na base */
+  gap: 10px;
+  height: 100%;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+/* Garante que a coluna da direita ocupe toda a altura disponível */
+.modo-mestre .right-column {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 4. MANTÉM OS CARDS COMPACTOS (não estica a altura interna) */
+.modo-mestre #featured-slot .player {
+  border: 1px solid #3a3a3a !important;
+  box-shadow: none !important;
+}
+
+.modo-mestre .player {
+  flex: 0 0 auto !important; /* Trava o tamanho do card no conteúdo original */
+  height: auto !important;   /* Impede que o card estique verticalmente */
+  padding: 12px 14px;
+}
+
+/* 5. Coluna Central (Histórico Geral no meio e em altura total) */
+.modo-mestre .middle-column {
+  height: 100%;
+  order: 1;
+}
+
+.modo-mestre .middle-column .history-box-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.modo-mestre #historico-geral-box {
+  flex: 1;
+  max-height: none !important;
+}
 
 
 
-/* Ajuste Responsivo para Celulares */
-@media (max-width: 768px) {
 
-  .mesa {
-    grid-template-columns: 1fr; /* No celular vira uma única coluna vertical */
+
+/* =======================================================
+   RESPONSIVIDADE (CELULARES E TABLETS)
+   ======================================================= */
+@media (max-width: 900px) {
+  .dashboard-layout {
+    grid-template-columns: 1fr; /* Vira coluna única em telas pequenas */
+    height: auto;
+    overflow: auto;
   }
 
-  .player {
+  .test-zone-content {
+    flex-direction: column;
+  }
+
+  .test-zone-content .local-roll {
     width: 100%;
   }
-
-  .roll-area .controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 5px;
-  }
-
-  .roll-area .controls input {
-    width: 60px;
-  }
-
-.roll-area button {
-    width: 120px; /* Mudado de 100% para 120px para acompanhar o tamanho dos campos */
-    margin-top: 10px;
-  }
-
-  .resultado {
-    font-size: 20px;
-  }
-
-  .historico {
-    max-height: 200px;
-  }
-
-  
 }
