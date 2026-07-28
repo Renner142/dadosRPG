@@ -20,6 +20,74 @@ function selecionarCampanha(nomeCampanha) {
   if (screenCharacter) screenCharacter.classList.add("active");
 }
 
+// Executa assim que a página carrega para recuperar os testes salvos no navegador
+document.addEventListener("DOMContentLoaded", () => {
+  carregarHistoricoLocal();
+});
+
+function rolarDadoLocal() {
+  const nomeTeste = document.getElementById("local-nome-teste").value.trim() || "Teste Geral";
+  const qtdDados = parseInt(document.getElementById("local-qtd-dados").value) || 1;
+  const facesDado = parseInt(document.getElementById("local-faces-dado").value) || 20;
+  const tipoCalculo = document.getElementById("local-tipo-calculo").value;
+  const modificador = parseInt(document.getElementById("local-modificador").value) || 0;
+
+  let resultados = [];
+  for (let i = 0; i < qtdDados; i++) {
+    resultados.push(Math.floor(Math.random() * facesDado) + 1);
+  }
+
+  let total = 0;
+  if (tipoCalculo === "maior") {
+    total = Math.max(...resultados) + modificador;
+  } else {
+    total = resultados.reduce((a, b) => a + b, 0) + modificador;
+  }
+
+  const modTexto = modificador >= 0 ? `+${modificador}` : `${modificador}`;
+  const hora = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+  const novaRolagem = {
+    nomeTeste,
+    detalhes: `${qtdDados}d${facesDado} (${modTexto}) [${tipoCalculo.toUpperCase()}]`,
+    resultados: `[${resultados.join(", ")}]`,
+    total,
+    hora
+  };
+
+  // Salva no localStorage
+  let historicoLocal = JSON.parse(localStorage.getItem("historico_local_rpg") || "[]");
+  historicoLocal.unshift(novaRolagem); // Adiciona no início da lista
+  localStorage.setItem("historico_local_rpg", JSON.stringify(historicoLocal));
+
+  // Atualiza a tela
+  renderizarHistoricoLocal(historicoLocal);
+}
+
+function carregarHistoricoLocal() {
+  const historicoLocal = JSON.parse(localStorage.getItem("historico_local_rpg") || "[]");
+  renderizarHistoricoLocal(historicoLocal);
+}
+
+function renderizarHistoricoLocal(lista) {
+  const ul = document.getElementById("local-historico-list");
+  if (!ul) return;
+
+  if (lista.length === 0) {
+    ul.innerHTML = `<li class="empty-msg">Nenhuma rolagem feita ainda.</li>`;
+    return;
+  }
+
+  ul.innerHTML = lista.map(item => `
+    <li style="border-bottom: 1px solid #333; padding: 6px 0; font-size: 13px;">
+      <strong style="color: #ff9f43;">${item.nomeTeste}</strong> 
+      <small style="color: #888;">${item.detalhes}</small> - 
+      <span style="color: #2ed573; font-weight: bold;">➡️ ${item.total}</span>
+      <small style="color: #555; display: block;">${item.resultados} às ${item.hora}</small>
+    </li>
+  `).join("");
+}
+
 function voltarParaCampanhas() {
   const screenCampaign = document.getElementById("screen-campaign");
   const screenCharacter = document.getElementById("screen-character");
