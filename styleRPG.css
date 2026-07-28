@@ -224,7 +224,7 @@ body {
 /* Barra Superior */
 .top-bar {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-between;
   align-items: center;
   padding: 12px 20px;
   background: #111;
@@ -273,7 +273,7 @@ body {
 .right-column {
   display: flex;
   flex-direction: column;
-  gap: 15px;
+  gap: 12px;
   height: 100%;
   min-height: 0; /* Permite que os itens filhos encolham e habilitem scroll */
 }
@@ -288,36 +288,39 @@ body {
 }
 
 /* =======================================================
-   COLUNA DO MEIO: ALIADOS DINÂMICOS
+   COLUNA DE ALIADOS DINÂMICOS
    ======================================================= */
 #allies-grid {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  overflow-y: auto; /* Se adicionar 1 ou 100 aliados, rola dentro dessa coluna */
-  padding-right: 5px;
+  justify-content: space-evenly;
+  gap: 8px;
+  overflow-y: auto;
+  padding-right: 4px;
   flex: 1;
 }
 
 /* =======================================================
-   CARDS DE PERSONAGENS E ALIADOS
+   CARDS DE PERSONAGENS E ALIADOS (ENCOLHIMENTO COMPACTO)
    ======================================================= */
 .player {
   background: #2c2c2c;
   border-radius: 10px;
-  padding: 14px;
+  padding: 8px 10px;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   box-sizing: border-box;
   border: 1px solid #3a3a3a;
-  flex-shrink: 0;
+  flex: 1;
+  min-height: 0; /* Permite que o card encolha proporcionalmente */
 }
 
 .player h2 {
   text-align: center;
-  margin: 0 0 12px 0;
+  margin: 0 0 6px 0;
   color: #fff;
-  font-size: 1.2rem;
+  font-size: 1rem;
 }
 
 /* Destaque para o slot principal */
@@ -328,6 +331,7 @@ body {
 #featured-slot .player {
   border: 2px solid #ff9f43;
   box-shadow: 0 0 12px rgba(255, 159, 67, 0.15);
+  flex: none; /* Mantém tamanho natural se necessário no slot principal */
 }
 
 /* Quando estiver no container de Aliados */
@@ -342,8 +346,8 @@ body {
 }
 
 #allies-grid .player h2 {
-  font-size: 1.05rem;
-  margin-bottom: 8px;
+  font-size: 0.95rem;
+  margin-bottom: 4px;
 }
 
 /* =======================================================
@@ -352,16 +356,16 @@ body {
 .perfil-status-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 10px;
+  gap: 8px;
+  margin-bottom: 0;
 }
 
 .avatar-quadrado {
-  width: 80px;
-  height: 80px;
+  width: 60px;
+  height: 60px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
-  border-radius: 10px;
+  border-radius: 8px;
   background: #1a1a1a;
   border: 1px solid #3a3a3a;
   flex-shrink: 0;
@@ -377,27 +381,27 @@ body {
 .status-container {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
   flex: 1;
 }
 
 .status-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .status-label {
-  font-size: 11px;
+  font-size: 13px !important;
   font-weight: bold;
-  width: 28px;
+  width: 24px;
   text-align: right;
   color: #aaa;
 }
 
 .bar-bg {
   flex: 1;
-  height: 12px;
+  height: 14px !important;
   background: #1a1a1a;
   border-radius: 4px;
   overflow: hidden;
@@ -426,13 +430,13 @@ body {
 .status-inputs {
   display: flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
 }
 
 .status-inputs input {
-  width: 35px;
-  padding: 2px 4px;
-  font-size: 11px;
+  width: 42px !important;
+  padding: 3px 2px !important;
+  font-size: 14px !important;
   text-align: center;
   border-radius: 4px;
   background: #1a1a1a;
@@ -447,32 +451,31 @@ body {
 }
 
 .status-inputs span {
-  font-size: 11px;
+  font-size: 10px;
   color: #666;
 }
 
-
 /* =======================================================
-   ÁREA DE ROLAGEM DE DADOS (ORGANIZADA E INTUITIVA)
+   ÁREA DE ROLAGEM DE DADOS
    ======================================================= */
 .roll-area {
-  margin-top: 12px;
-  padding-top: 12px;
+  margin-top: 8px;
+  padding-top: 8px;
   border-top: 1px solid #3a3a3a;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
 }
 
 /* 1. Nome do Teste (Topo) */
 .roll-area .nome-rolagem {
   width: 100%;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid #3a3a3a;
   border-radius: 6px;
   background: #181818;
   color: #fff;
-  font-size: 12px;
+  font-size: 11px;
   box-sizing: border-box;
   outline: none;
   transition: border-color 0.2s;
@@ -482,20 +485,19 @@ body {
   border-color: #ff9f43;
 }
 
-/* 2. Container dos Dados: Qtd, Lados, Modo e Modificador */
+/* 2. Container dos Dados */
 .roll-area .controls {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 6px;
+  gap: 4px;
   background: #181818;
-  padding: 8px 10px;
+  padding: 6px 8px;
   border: 1px solid #3a3a3a;
   border-radius: 8px;
   box-sizing: border-box;
 }
 
-/* Grupo Dado (Ex: 1 d 20) */
 .roll-area .dice-group {
   display: flex;
   align-items: center;
@@ -504,19 +506,19 @@ body {
 
 .roll-area .dice-group span {
   color: #888;
-  font-size: 13px;
+  font-size: 15px !important;
   font-weight: bold;
 }
 
-/* Estilo geral dos Inputs e Selects internos */
 .roll-area .controls input, 
 .roll-area .controls select {
   border: 1px solid #3a3a3a;
   border-radius: 5px;
   background: #242424;
   color: #fff;
-  font-size: 12px;
-  padding: 5px 4px;
+  font-size: 14px !important;
+  font-weight: bold;
+  padding: 4px 2px;
   outline: none;
   text-align: center;
   transition: border-color 0.2s;
@@ -527,39 +529,39 @@ body {
   border-color: #ff9f43;
 }
 
-/* Campos numéricos específicos (Qtd, Lados, Modificador) */
 .roll-area input.qtd-dados,
 .roll-area input.qtd,
 .roll-area input.faces-dado,
 .roll-area input.faces {
-  width: 36px;
+  width: 40px !important;
+  font-size: 15px !important;
   font-weight: bold;
   color: #ff9f43;
 }
 
 .roll-area input.modificador {
-  width: 40px;
+  width: 44px !important;
+  font-size: 15px !important;
   font-weight: bold;
-  color: #2ed573; /* Destaque verde para o modificador */
+  color: #2ed573;
 }
 
-/* Seletor Maior / Soma */
 .roll-area select.tipo-calculo {
   cursor: pointer;
   background: #2a2a2a;
   font-weight: bold;
-  padding: 5px 6px;
+  padding: 4px 4px;
 }
 
 /* 3. Botão Principal de Rolar Dados */
 .roll-btn {
   width: 100%;
-  padding: 10px;
+  padding: 8px;
   border: none;
   border-radius: 6px;
   background: linear-gradient(135deg, #ff9f43 0%, #e67e22 100%);
   color: #111;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: bold;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -587,7 +589,7 @@ body {
   display: flex;
   flex-direction: column;
   flex: 1;
-  min-height: 0; /* Previne estouro vertical */
+  min-height: 0;
   box-sizing: border-box;
 }
 
@@ -606,13 +608,14 @@ body {
 
 .historico-box li.empty-msg {
   color: #666;
-  font-size: 12px;
+  font-size: 14px !important;
+  line-height: 1.4;
   font-style: italic;
   text-align: center;
   padding: 10px;
 }
 
-/* Barra de rolagem discreta e elegante para todas as áreas de scroll */
+/* Barra de rolagem discreta */
 .historico-box::-webkit-scrollbar,
 #allies-grid::-webkit-scrollbar {
   width: 6px;
@@ -685,14 +688,8 @@ body {
   background: #e68a2e;
 }
 
-
-
-
-
-
-
 /* =======================================================
-   VISÃO DO MESTRE (CARDS ESPAÇADOS SEM ESTICAR O CONTEÚDO)
+   VISÃO DO MESTRE (MESA COMPLETA COM ESPAÇAMENTO PERFEITO)
    ======================================================= */
 
 /* 1. Esconde o Histórico Pessoal e o título extra da direita no Mestre */
@@ -706,35 +703,34 @@ body {
   display: none !important;
 }
 
-/* 3. Colunas Laterais: Distribui os cards com espaço uniforme (sem grudar no teto/chão) */
+/* 3. Colunas Laterais: Distribui os cards com espaço uniforme sem grudar */
 .modo-mestre #featured-slot,
 .modo-mestre #allies-grid {
   display: flex !important;
   flex-direction: column;
-  justify-content: space-evenly; /* Espaço igual no topo, no meio e na base */
-  gap: 10px;
+  justify-content: space-evenly;
+  gap: 8px;
   height: 100%;
   overflow-y: auto;
   padding-right: 4px;
 }
 
-/* Garante que a coluna da direita ocupe toda a altura disponível */
 .modo-mestre .right-column {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-/* 4. MANTÉM OS CARDS COMPACTOS (não estica a altura interna) */
+/* 4. Mantém cards compactos */
 .modo-mestre #featured-slot .player {
   border: 1px solid #3a3a3a !important;
   box-shadow: none !important;
 }
 
 .modo-mestre .player {
-  flex: 0 0 auto !important; /* Trava o tamanho do card no conteúdo original */
-  height: auto !important;   /* Impede que o card estique verticalmente */
-  padding: 12px 14px;
+  flex: 0 0 auto !important;
+  height: auto !important;
+  padding: 10px 12px;
 }
 
 /* 5. Coluna Central (Histórico Geral no meio e em altura total) */
@@ -754,16 +750,12 @@ body {
   max-height: none !important;
 }
 
-
-
-
-
 /* =======================================================
    RESPONSIVIDADE (CELULARES E TABLETS)
    ======================================================= */
 @media (max-width: 900px) {
   .dashboard-layout {
-    grid-template-columns: 1fr; /* Vira coluna única em telas pequenas */
+    grid-template-columns: 1fr;
     height: auto;
     overflow: auto;
   }
