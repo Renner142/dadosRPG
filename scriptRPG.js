@@ -1,86 +1,249 @@
+// =======================================================
+// 1. INICIALIZAÇÃO E VARIÁVEIS GLOBAIS
+// =======================================================
 const supabaseClient = window.supabase.createClient(
   'https://eglmqjoqmnipcfnhdcyl.supabase.co',
   'sb_publishable_1mVT1wJ14LpEb7xYEoQmvA_fYna-o-Y'
 );
 
+let personagemAtual = null;
+
 // =======================================================
-// CONTROLE DE HISTÓRICO DE DADOS (CARREGAMENTO INICIAL)
+// 2. NAVEGAÇÃO DE TELAS E SELEÇÃO DE PERSONAGEM
 // =======================================================
+function selecionarCampanha(nomeCampanha) {
+  console.log("Campanha selecionada:", nomeCampanha);
+  const screenCampaign = document.getElementById("screen-campaign");
+  const screenCharacter = document.getElementById("screen-character");
+  
+  if (screenCampaign) screenCampaign.classList.remove("active");
+  if (screenCharacter) screenCharacter.classList.add("active");
+}
+
+function voltarParaCampanhas() {
+  const screenCampaign = document.getElementById("screen-campaign");
+  const screenCharacter = document.getElementById("screen-character");
+  
+  if (screenCharacter) screenCharacter.classList.remove("active");
+  if (screenCampaign) screenCampaign.classList.add("active");
+}
+
+function trocarPersonagem() {
+  const screenGameboard = document.getElementById("screen-gameboard");
+  const screenCharacter = document.getElementById("screen-character");
+  
+  if (screenGameboard) screenGameboard.classList.remove("active");
+  if (screenCharacter) screenCharacter.classList.add("active");
+}
+
+function selecionarPersonagem(idPersonagem) {
+  personagemAtual = idPersonagem;
+  console.log("Personagem ativo selecionado:", personagemAtual);
+
+  // 1. Reorganiza quem é o destaque e quem é aliado na tela
+  renderizarMesa();
+
+  // 2. Limpa a flag 'data-bound' para obrigar os novos botões a registrarem os cliques
+  document.querySelectorAll(".roll-btn").forEach(btn => {
+    delete btn.dataset.bound;
+  });
+
+  // 3. Re-inicializa os eventos nos inputs e botões do novo card ativo
+  if (typeof inicializarEventosDeDigitacao === "function") inicializarEventosDeDigitacao();
+  if (typeof inicializarBotoesDeRolagem === "function") inicializarBotoesDeRolagem();
+
+  // 4. Recarrega o histórico filtrando apenas as rolagens do novo personagem
+  carregarHistorico();
+
+  // 5. Faz a troca visual de telas
+  const screenCharacter = document.getElementById("screen-character");
+  const screenGameboard = document.getElementById("screen-gameboard");
+
+  if (screenCharacter) screenCharacter.classList.remove("active");
+  if (screenGameboard) screenGameboard.classList.add("active");
+}
+
+function renderizarMesa() {
+  const featuredSlot = document.getElementById("featured-slot");
+  const alliesGrid = document.getElementById("allies-grid");
+  const storage = document.getElementById("players-storage");
+  const tituloModo = document.getElementById("titulo-modo-jogo");
+  const dashboard = document.querySelector(".dashboard-layout");
+
+  if (!featuredSlot || !alliesGrid) return;
+
+  // 1. Resgata todos os cards de jogadores
+  const todosOsPlayers = Array.from(document.querySelectorAll(".player"));
+
+  // 2. Devolve para o storage oculto antes de organizar
+  if (storage) {
+    todosOsPlayers.forEach(p => storage.appendChild(p));
+  }
+
+  featuredSlot.innerHTML = "";
+  alliesGrid.innerHTML = "";
+
+  const idAtualNormalizado = (personagemAtual || "").toString().trim().toLowerCase();
+
+  // ==========================================
+  // VISÃO DO MESTRE (LADO ESQUERDO, CENTRO, LADO DIREITO)
+  // ==========================================
+  if (idAtualNormalizado === "mestre") {
+    if (dashboard) dashboard.classList.add("modo-mestre");
+    if (tituloModo) tituloModo.innerText = "Visão Geral (Mestre)";
+    
+    featuredSlot.style.display = "flex";
+
+    // Divide os jogadores igualmente entre Esquerda (featuredSlot) e Direita (alliesGrid)
+    const metade = Math.ceil(todosOsPlayers.length / 2);
+
+    todosOsPlayers.forEach((player, index) => {
+      if (index < metade) {
+        featuredSlot.appendChild(player); // Vai para o lado Esquerdo
+      } else {
+        alliesGrid.appendChild(player);   // Vai para o lado Direito
+      }
+    });
+
+  // ==========================================
+  // VISÃO NORMAL DO JOGADOR
+  // ==========================================
+  } else {
+    if (dashboard) dashboard.classList.remove("modo-mestre");
+    featuredSlot.style.display = "block";
+
+    todosOsPlayers.forEach(p => {
+      const pId = (p.getAttribute("data-player") || "").toString().trim().toLowerCase();
+
+      if (pId === idAtualNormalizado) {
+        featuredSlot.appendChild(p); // Card ativo no topo da esquerda
+        if (tituloModo) {
+          const nomeEl = p.querySelector("h2");
+          tituloModo.innerText = `Jogando como: ${nomeEl ? nomeEl.innerText : pId}`;
+        }
+      } else {
+        alliesGrid.appendChild(p);   // Outros na coluna da direita
+      }
+    });
+  }
+
+  // Re-vincula os eventos dos inputs e botões
+  if (typeof inicializarEventosDeDigitacao === "function") inicializarEventosDeDigitacao();
+  if (typeof inicializarBotoesDeRolagem === "function") inicializarBotoesDeRolagem();
+}
+
+// =======================================================
+// 3. CONTROLE DE HISTÓRICO DE DADOS (GERAL E PESSOAL)
+// =======================================================
+function formatarHora(dateString) {
+  const d = dateString ? new Date(dateString) : new Date();
+  const h = String(d.getHours()).padStart(2, "0");
+  const m = String(d.getMinutes()).padStart(2, "0");
+  const s = String(d.getSeconds()).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
 function montarTextoHistorico(roll) {
   const resultados = Array.isArray(roll.results) ? roll.results : [];
-  const hora = roll.created_at ? formatarHora(roll.created_at) : formatarHora(new Date());
-  const nome = roll.nome_rolagem || "";
-  
-  // Puxa o modificador salvo ou define como 0 se for uma rolagem antiga do banco
+  const hora = formatarHora(roll.created_at);
+  const nome = roll.nome_rolagem || "Dados";
   const mod = roll.modificador || 0;
+  
   const textoMod = mod > 0 
     ? ` <span style="color: #2ed573; font-weight: bold;">+${mod}</span>` 
     : mod < 0 
       ? ` <span style="color: #ff4757; font-weight: bold;">${mod}</span>` 
       : "";
 
-  // Tag estilizada do Modo de Cálculo
   const modoTag = roll.tipo_calculo === "maior" 
     ? `<span style="color: #ff4757; font-weight: bold; font-size: 10px; background: rgba(255,71,87,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,71,87,0.3); display: inline-block;">MAIOR</span>` 
     : `<span style="color: #2ed573; font-weight: bold; font-size: 10px; background: rgba(46,213,115,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(46,213,115,0.3); display: inline-block;">SOMA</span>`;
   
+  // Imagem do avatar ou um placeholder caso não exista
+  const avatarUrl = roll.avatar_url || 'https://via.placeholder.com/40';
+
   return `
-    <div style="display: flex; flex-direction: column; width: 100%; gap: 4px; padding: 4px 0; text-align: left;">
-      <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-        <strong style="color: #ff9f43; font-size: 16px;">${nome || "Dados"}</strong> 
-        <span style="color: #888; font-size: 11px;">(${roll.qtd}d${roll.faces})${textoMod}</span> 
-        ${modoTag}
-      </div>
+    <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 8px 0; border-bottom: 1px solid #2a2a2a;">
+      <img src="${avatarUrl}" alt="${roll.player}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; border: 1px solid #444; flex-shrink: 0; margin-top: 2px;">
       
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-        <div style="display: flex; align-items: center; gap: 8px;">
+      <div style="display: flex; flex-direction: column; width: 100%; gap: 3px;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <span style="color: #aaa; font-size: 11px; font-weight: bold; text-transform: uppercase;">${roll.player || ''}</span>
+          <span style="color: #555; font-size: 11px;">${hora}</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
+          <strong style="color: #ff9f43; font-size: 14px;">${nome}</strong> 
+          <span style="color: #888; font-size: 11px;">(${roll.qtd}d${roll.faces})${textoMod}</span> 
+          ${modoTag}
+        </div>
+        
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
           <span style="color: #666; font-size: 12px;">➔</span>
           <strong style="color: #00ffff; font-size: 16px; text-shadow: 0 0 6px rgba(0,255,255,0.5);">${roll.total}</strong>
           <span style="color: #666; font-size: 11px;">[${resultados.join(", ")}]</span>
-        </div>
-        
-        <div style="color: #444; font-size: 15px; padding-left: 10px; padding-right: 10px; user-select: none;">
-          ${hora}
         </div>
       </div>
     </div>
   `;
 }
 
+function adicionarRolagemNaInterface(roll) {
+  const listaGeral = document.getElementById("historico-geral-list");
+  const listaPessoal = document.getElementById("historico-pessoal-list");
+
+  // 1. Histórico Geral da Mesa
+  if (listaGeral) {
+    const liGeral = document.createElement("li");
+    liGeral.style.listStyle = "none";
+    liGeral.innerHTML = montarTextoHistorico(roll);
+    listaGeral.prepend(liGeral);
+
+    if (listaGeral.children.length > 30) {
+      listaGeral.removeChild(listaGeral.lastChild);
+    }
+  }
+
+  // 2. Histórico Pessoal do Jogador Ativo
+  const jogadorRolagem = (roll.player || "").toLowerCase();
+  const jogadorAtivo = (personagemAtual || "").toLowerCase();
+
+  if (personagemAtual && personagemAtual !== "mestre" && jogadorRolagem === jogadorAtivo && listaPessoal) {
+    const emptyMsg = listaPessoal.querySelector(".empty-msg");
+    if (emptyMsg) emptyMsg.remove();
+
+    const liPessoal = document.createElement("li");
+    liPessoal.style.listStyle = "none";
+    liPessoal.innerHTML = montarTextoHistorico(roll);
+    listaPessoal.prepend(liPessoal);
+
+    if (listaPessoal.children.length > 20) {
+      listaPessoal.removeChild(listaPessoal.lastChild);
+    }
+  }
+}
+
 async function carregarHistorico() {
   const { data, error } = await supabaseClient
     .from("rolls")
     .select("*")
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: true });
 
   if (error) {
     console.error("Erro ao carregar histórico:", error);
     return;
   }
 
-  document.querySelectorAll(".historico ul").forEach(ul => {
-    ul.innerHTML = "";
-  });
+  const listaGeral = document.getElementById("historico-geral-list");
+  const listaPessoal = document.getElementById("historico-pessoal-list");
 
-  const primeiroPorPlayer = new Set();
+  if (listaGeral) listaGeral.innerHTML = "";
+  if (listaPessoal) listaPessoal.innerHTML = '<li class="empty-msg">Nenhuma rolagem pessoal ainda.</li>';
 
-  data.forEach(roll => {
-    const playerEl = document.querySelector(`.player[data-player="${roll.player}"]`);
-    if (!playerEl) return;
-
-    const historico = playerEl.querySelector(".historico ul");
-    const li = document.createElement("li");
-    
-    // Configurado com innerHTML para aceitar o estilo visual
-    li.innerHTML = montarTextoHistorico(roll);
-
-    if (!primeiroPorPlayer.has(roll.player)) {
-      li.classList.add("latest");
-      primeiroPorPlayer.add(roll.player);
-    }
-
-    historico.appendChild(li);
-  });
+  if (data) {
+    data.forEach(roll => {
+      adicionarRolagemNaInterface(roll);
+    });
+  }
 }
 
 function ligarRealtimeDeDados() {
@@ -90,33 +253,14 @@ function ligarRealtimeDeDados() {
       "postgres_changes",
       { event: "INSERT", schema: "public", table: "rolls" },
       (payload) => {
-        const roll = payload.new;
-        const playerEl = document.querySelector(`.player[data-player="${roll.player}"]`);
-        if (!playerEl) return;
-
-        const historico = playerEl.querySelector(".historico ul");
-        const li = document.createElement("li");
-        
-        // Configurado com innerHTML para o tempo real também ficar bonito
-        li.innerHTML = montarTextoHistorico(roll);
-
-        historico.querySelectorAll("li").forEach(el => {
-          el.classList.remove("latest");
-        });
-
-        li.classList.add("latest");
-        historico.prepend(li);
-
-        if (historico.children.length > 10) {
-          historico.removeChild(historico.lastChild);
-        }
+        adicionarRolagemNaInterface(payload.new);
       }
     )
     .subscribe();
 }
 
 // =======================================================
-// CONTROLE DE BARRAS DE STATUS COM SUPABASE REALTIME
+// 4. BARRAS DE STATUS COM SUPABASE REALTIME
 // =======================================================
 function renderizarBarraVisual(row) {
   const atualInput = row.querySelector(".status-atual");
@@ -147,9 +291,11 @@ async function carregarStatusIniciais() {
     .select("*");
 
   if (error) {
-    console.error("Erro crítico ao buscar status no Supabase:", error);
+    console.error("Erro ao buscar status:", error);
     return;
   }
+
+  if (!data) return;
 
   data.forEach(status => {
     const playerEl = document.querySelector(`.player[data-player="${status.player.toLowerCase().trim()}"]`);
@@ -253,177 +399,103 @@ function ligarRealtimeDeStatus() {
 }
 
 // =======================================================
-// EVENTO DE CLIQUE DO BOTÃO DE ROLAR DADOS DOS JOGADORES
+// 5. BOTÕES DE ROLAGEM DE DADOS DOS PLAYERS
 // =======================================================
 function inicializarBotoesDeRolagem() {
   document.querySelectorAll(".player").forEach(player => {
     const btn = player.querySelector(".roll-btn");
-    const resultadoEl = player.querySelector(".resultado");
+    if (!btn || btn.dataset.bound) return;
+    btn.dataset.bound = "true";
 
     btn.addEventListener("click", async () => {
-      const qtd = parseInt(player.querySelector(".qtd").value) || 1;
-      const faces = parseInt(player.querySelector(".faces").value) || 20;
-      const nomeRolagem = player.querySelector(".nome-rolagem").value.trim() || "";
-      const tipoCalculo = player.querySelector(".tipo-calculo").value;
+      const qtdEl = player.querySelector(".qtd-dados") || player.querySelector(".qtd");
+      const facesEl = player.querySelector(".faces-dado") || player.querySelector(".faces");
+      
+      const qtd = parseInt(qtdEl ? qtdEl.value : 1) || 1;
+      const faces = parseInt(facesEl ? facesEl.value : 20) || 20;
+      const nomeRolagem = player.querySelector(".nome-rolagem") ? player.querySelector(".nome-rolagem").value.trim() : "";
+      const tipoCalculo = player.querySelector(".tipo-calculo") ? player.querySelector(".tipo-calculo").value : "maior";
 
-      // 🧠 Captura o modificador, limpa o símbolo de "+" se o usuário digitar e converte para número
-      const modTexto = player.querySelector(".modificador")?.value.replace("+", "").trim() || "";
+      const modTexto = player.querySelector(".modificador") ? player.querySelector(".modificador").value.replace("+", "").trim() : "";
       const modificador = parseInt(modTexto) || 0;
+
+      // Busca a imagem do avatar no card do jogador
+      const imgEl = player.querySelector(".avatar-quadrado img");
+      const avatarUrl = imgEl ? imgEl.src : "";
 
       let resultados = [];
       for (let i = 0; i < qtd; i++) {
-        const roll = Math.floor(Math.random() * faces) + 1;
-        resultados.push(roll);
+        resultados.push(Math.floor(Math.random() * faces) + 1);
       }
 
-      // Calcula o valor base (Soma ou Maior) antes do bônus
-      let baseCalculo = 0;
-      if (tipoCalculo === "maior") {
-        baseCalculo = Math.max(...resultados);
-      } else {
-        totalExibido = resultados.reduce((a, b) => a + b, 0); // Mantendo a sua variável de atribuição
-        baseCalculo = totalExibido; 
-      }
-
-      // 🔥 Aplica o modificador em cima da base calculada
+      let baseCalculo = (tipoCalculo === "maior") ? Math.max(...resultados) : resultados.reduce((a, b) => a + b, 0);
       const totalFinal = baseCalculo + modificador;
-
-      const agora = new Date();
-      const hora = formatarHora(agora);
-      const rotuloCalculo = tipoCalculo === "maior" ? "Maior Dado" : "Soma Total";
-      
-      // Cria o textinho visual do bônus (ex: +5 ou -2) para exibir no cabeçalho
-      const textoMod = modificador > 0 ? ` +${modificador}` : modificador < 0 ? ` ${modificador}` : "";
-
-      // Injeta mantendo a sua caixinha idêntica, apenas injetando o modificador e o total real
-      resultadoEl.innerHTML = `
-        <div style="background: rgba(10, 10, 10, 0.7); padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; border-left: 4px solid #00ffff; margin-top: 8px; text-align: left; position: relative;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-            <span style="color: #ff9f43; font-weight: bold; font-size: 13px;">🎲 ${nomeRolagem || "Dados"}</span>
-            <span style="color: #555; font-size: 10px;">${rotuloCalculo} (${qtd}d${faces})${textoMod}</span>
-          </div>
-          
-          <div style="font-size: 22px; font-weight: bold; color: #fff; margin: 4px 0;">
-            Total: <span style="color: #00ffff; text-shadow: 0 0 10px rgba(0,255,255,0.6);">${totalFinal}</span>
-          </div>
-          
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2px;">
-            <span style="color: #777; font-size: 11px;">Dados: [ ${resultados.join(" , ")} ]${textoMod ? ` (Base: ${baseCalculo})` : ""}</span>
-            <span style="color: #333; font-size: 20px;">${hora}</span>
-          </div>
-        </div>
-      `;
-
       const playerId = player.dataset.player;
 
-      // Enviando para o Supabase salvando o total já somado e o bônus isolado
+      // Envia para o Supabase incluindo a foto do perfil
       await supabaseClient.from("rolls").insert({
         player: playerId,
         qtd,
         faces,
         results: resultados,
-        total: totalFinal, // O banco recebe o valor já com a soma/maior + modificador
+        total: totalFinal,
         nome_rolagem: nomeRolagem,
         tipo_calculo: tipoCalculo,
-        modificador: modificador // Coluna nova criada no banco
+        modificador: modificador,
+        avatar_url: avatarUrl // Salva a foto no banco!
       });
     });
   });
 }
 
-
-
-
-
-
+// =======================================================
+// 6. ÁREA DE TESTES LOCAL (SE HOUVER NA TELA)
+// =======================================================
 function inicializarRolagemLocal() {
-  const container = document.querySelector(".test-zone-container");
-  if (!container) return;
+  const btnLocal = document.querySelector(".roll-btn-local");
+  if (!btnLocal || btnLocal.dataset.bound) return;
+  btnLocal.dataset.bound = "true";
 
-  const btn = container.querySelector(".roll-btn-local");
-  const resultadoEl = container.querySelector(".resultado-local");
-  const historicoUl = container.querySelector(".lista-local");
+  btnLocal.addEventListener("click", () => {
+    const container = document.querySelector(".test-zone-container");
+    if (!container) return;
 
-  btn.addEventListener("click", () => {
-    const qtd = parseInt(container.querySelector(".qtd-local").value) || 1;
-    const faces = parseInt(container.querySelector(".faces-local").value) || 20;
-    const nomeRolagem = container.querySelector(".nome-rolagem-local").value.trim() || "Teste";
-    const tipoCalculo = container.querySelector(".tipo-calculo-local").value;
-
-    const modTexto = container.querySelector(".modificador-local").value.replace("+", "").trim();
-    const modificador = parseInt(modTexto) || 0;
+    const qtd = parseInt(container.querySelector(".qtd-local")?.value || 1);
+    const faces = parseInt(container.querySelector(".faces-local")?.value || 20);
+    const nome = container.querySelector(".nome-rolagem-local")?.value.trim() || "Teste Local";
+    const tipo = container.querySelector(".tipo-calculo-local")?.value || "maior";
+    const mod = parseInt(container.querySelector(".modificador-local")?.value || 0);
 
     let resultados = [];
     for (let i = 0; i < qtd; i++) {
       resultados.push(Math.floor(Math.random() * faces) + 1);
     }
 
-    let baseCalculo = tipoCalculo === "maior" ? Math.max(...resultados) : resultados.reduce((a, b) => a + b, 0);
-    const totalFinal = baseCalculo + modificador;
+    let base = (tipo === "maior") ? Math.max(...resultados) : resultados.reduce((a, b) => a + b, 0);
+    const total = base + mod;
 
-    const hora = formatarHora(new Date());
-    
-    // Cores condicionais do modificador para o histórico local
-    const textoModColorido = modificador > 0 
-      ? ` <span style="color: #2ed573; font-weight: bold;">+${modificador}</span>` 
-      : modificador < 0 
-        ? ` <span style="color: #ff4757; font-weight: bold;">${modificador}</span>` 
-        : "";
-
-    // 1. Atualiza o card de resultado atual (laranja para combinar)
-    resultadoEl.innerHTML = `
-      <div style="background: rgba(10, 10, 10, 0.7); padding: 10px; border-radius: 6px; border: 1px solid #2a2a2a; border-left: 4px solid #ff9f43; margin-top: 8px; text-align: left;">
-        <div style="font-size: 18px; font-weight: bold; color: #fff;">
-          Total: <span style="color: #ff9f43; text-shadow: 0 0 10px rgba(255,159,67,0.6);">${totalFinal}</span>
-        </div>
-      </div>
-    `;
-
-    // 2. Cria o elemento do histórico local
-    const li = document.createElement("li");
-    li.style.listStyle = "none";
-    li.style.marginBottom = "8px";
-    
-    const modoTag = tipoCalculo === "maior" 
-      ? `<span style="color: #ff4757; font-weight: bold; font-size: 10px; background: rgba(255,71,87,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,71,87,0.3); display: inline-block;">MAIOR</span>` 
-      : `<span style="color: #2ed573; font-weight: bold; font-size: 10px; background: rgba(46,213,115,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(46,213,115,0.3); display: inline-block;">SOMA</span>`;
-
-    li.innerHTML = `
-      <div style="display: flex; flex-direction: column; width: 100%; gap: 4px; padding: 4px 0; text-align: left; border-bottom: 1px solid #2a2a2a;">
-        <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
-          <strong style="color: #ff9f43; font-size: 14px;">${nomeRolagem}</strong> 
-          <span style="color: #888; font-size: 11px;">(${qtd}d${faces})${textoModColorido}</span> 
-          ${modoTag}
-        </div>
-        <div style="display: flex; justify-content: space-between; align-items: flex-end; width: 100%;">
-          <div style="display: flex; align-items: center; gap: 8px;">
-            <span style="color: #666; font-size: 12px;">➔</span>
-            <strong style="color: #ff9f43; font-size: 16px; text-shadow: 0 0 6px rgba(255,159,67,0.5);">${totalFinal}</strong>
-            <span style="color: #666; font-size: 11px;">[${resultados.join(", ")}]</span>
-          </div>
-          <div style="color: #444; font-size: 12px; user-select: none;">${hora}</div>
-        </div>
-      </div>
-    `;
-
-    // Adiciona no topo do histórico local
-    historicoUl.prepend(li);
-
-    // Limita em 20 rolagens locais para não pesar a aba
-    if (historicoUl.children.length > 20) {
-      historicoUl.removeChild(historicoUl.lastChild);
+    const ul = container.querySelector(".local-historico ul");
+    if (ul) {
+      const li = document.createElement("li");
+      li.style.listStyle = "none";
+      li.innerHTML = montarTextoHistorico({
+        player: "Local",
+        qtd,
+        faces,
+        results: resultados,
+        total,
+        nome_rolagem: nome,
+        tipo_calculo: tipo,
+        modificador: mod,
+        created_at: new Date()
+      });
+      ul.prepend(li);
     }
   });
 }
 
-
-
-
-
-
-
 // =======================================================
-// CARREGADOR ÚNICO INICIAL DA PÁGINA
+// 7. CARREGADOR INICIAL
 // =======================================================
 window.addEventListener("DOMContentLoaded", () => {
   carregarHistorico();
@@ -434,11 +506,3 @@ window.addEventListener("DOMContentLoaded", () => {
   ligarRealtimeDeStatus();
   ligarRealtimeDeDados();
 });
-
-function formatarHora(dateString) {
-  const d = new Date(dateString);
-  const h = String(d.getHours()).padStart(2, "0");
-  const m = String(d.getMinutes()).padStart(2, "0");
-  const s = String(d.getSeconds()).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-}
