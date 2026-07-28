@@ -25,6 +25,44 @@
         </button>
       </div>
     </div>
+
+    <div class="test-zone-container">
+  <h2>🎲 Rolagem Rápida (Local)</h2>
+  <div class="test-zone-content">
+    
+    <div class="roll-area local-roll">
+      <input type="text" id="local-nome-teste" class="nome-rolagem" placeholder="Nome do Teste (ex: Ataque)" />
+      
+      <div class="controls">
+        <div class="dice-group">
+          <input type="number" id="local-qtd-dados" class="qtd-dados" value="1" min="1" />
+          <span>d</span>
+          <input type="number" id="local-faces-dado" class="faces-dado" value="20" min="2" />
+        </div>
+        
+        <select id="local-tipo-calculo" class="tipo-calculo">
+          <option value="maior">MAIOR</option>
+          <option value="soma">SOMA</option>
+        </select>
+        
+        <input type="number" id="local-modificador" class="modificador" value="0" placeholder="+0" />
+      </div>
+
+      <button onclick="rolarDadoLocal()" class="roll-btn-local">Rolar Dado</button>
+    </div>
+
+    <div class="history-box-container local-historico">
+      <h3>📜 Histórico Local</h3>
+      <div class="historico-box">
+        <ul id="local-historico-list">
+          <li class="empty-msg">Nenhuma rolagem feita ainda.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+</div>
+    
   </div>
 
   <div id="screen-character" class="screen">
