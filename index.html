@@ -7,490 +7,325 @@
 </head>
 <body>
 
-<div class="mesa">
+  <div id="screen-campaign" class="screen active">
+    <div class="campaign-select-container">
+      <h1>Escolha a Campanha</h1>
+      <p>Selecione uma mesa para continuar</p>
 
-    <div class="player" data-player="bowen">
-      <h2>Bowen Oeste</h2>
+      <div class="campaign-grid">
+        <button class="campaign-card" onclick="selecionarCampanha('ordem-paranormal')">
+          <div class="campaign-badge">Ativa</div>
+          <h2>Ordem Paranormal</h2>
+          <p>O Segredo na Floresta</p>
+        </button>
 
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fb3835978-8fbc-47c5-aaee-e8607f61ae4c?alt=media&token=03d04409-5306-44e8-bf96-9bd2a591b62c" alt="Bowen West">
-        </div>
-
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-        </div>
+        <button class="campaign-card disabled" disabled>
+          <h2>Em Breve...</h2>
+          <p>Nova Campanha</p>
+        </button>
       </div>
-
-      <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
     </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 85%;">
-        <option value="maior">Maior</option>
-        <option value="soma">Soma</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <input type="text" class="modificador" placeholder="Modificador (ex: +5, -2)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-    </div>
-
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
   </div>
 
-      <div class="historico">
-        <ul></ul>
-      </div>
-    </div>
+  <div id="screen-character" class="screen">
+    <div class="character-select-container">
+      <button class="btn-voltar" onclick="voltarParaCampanhas()">← Voltar</button>
+      <h1>Quem é você na mesa?</h1>
+      <p>Selecione seu personagem de destaque ou acesse a Visão Geral</p>
 
-    <div class="player" data-player="dick">
-      <h2>Dick Roger</h2>
-
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa81aa686-1d95-4f96-9028-646447be3afb?alt=media&token=8beca021-40a2-4b85-96de-260e3166addf" alt="Dick Roger">
+      <div class="character-grid">
+        <div class="char-select-card" onclick="selecionarPersonagem('bowen')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fb3835978-8fbc-47c5-aaee-e8607f61ae4c?alt=media&token=03d04409-5306-44e8-bf96-9bd2a591b62c" alt="Bowen">
+          </div>
+          <h3>Bowen Oeste</h3>
         </div>
 
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 100%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="20" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="20" min="1">
-            </div>
+        <div class="char-select-card" onclick="selecionarPersonagem('dick')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa81aa686-1d95-4f96-9028-646447be3afb?alt=media&token=8beca021-40a2-4b85-96de-260e3166addf" alt="Dick">
           </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 100%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="30" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="30" min="1">
-            </div>
-          </div>
+          <h3>Dick Roger</h3>
+        </div>
 
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 100%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="15" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="15" min="1">
-            </div>
+        <div class="char-select-card" onclick="selecionarPersonagem('ferreira')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Ffe2ef733-7eec-45ad-8d49-315d44c514a1?alt=media&token=6f7385a2-5b3e-46ee-b13a-13023327164e" alt="Ferreira">
           </div>
+          <h3>Ferreira</h3>
+        </div>
+
+        <div class="char-select-card" onclick="selecionarPersonagem('malu')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F5e308a3f-51e0-4bfc-a6b0-ae4a3c19d544?alt=media&token=c5bcf564-b1aa-48a9-9a87-a7609fcd1c47" alt="Malu">
+          </div>
+          <h3>Malu</h3>
+        </div>
+
+        <div class="char-select-card" onclick="selecionarPersonagem('simon')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa7b33646-87ab-42f2-8ab4-1870d7ef3ada?alt=media&token=40ccb602-9407-4238-8ee1-39152711b545" alt="Simon">
+          </div>
+          <h3>Simon</h3>
+        </div>
+
+        <div class="char-select-card" onclick="selecionarPersonagem('oliver')">
+          <div class="char-avatar">
+            <img src="img/oliver.jpg" alt="Oliver">
+          </div>
+          <h3>Oliver Couto</h3>
+        </div>
+
+        <div class="char-select-card master-card" onclick="selecionarPersonagem('mestre')">
+          <div class="char-avatar master-icon">
+            <span>👁️</span>
+          </div>
+          <h3>Visão Geral</h3>
+          <p>(Mestre / Espectador)</p>
         </div>
       </div>
-
-      <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
     </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 85%;">
-        <option value="maior">Maior</option>
-        <option value="soma">Soma</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <input type="text" class="modificador" placeholder="Modificador (ex: +5, -2)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-    </div>
-
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
   </div>
 
-      <div class="historico">
-        <ul></ul>
+  <div id="screen-gameboard" class="screen">
+    <header class="top-bar">
+      <button class="btn-trocar" onclick="trocarPersonagem()">🔁 Trocar Personagem</button>
+      <h2 id="titulo-modo-jogo">Mesa de Jogo</h2>
+    </header>
+
+<div class="dashboard-layout">
+  <div class="left-column">
+    <div id="featured-slot" class="featured-slot"></div>
+
+    <div class="history-box-container">
+      <h3>📜 Histórico Pessoal</h3>
+      <div id="historico-pessoal-box" class="historico-box">
+        <ul id="historico-pessoal-list">
+          <li class="empty-msg">Nenhuma rolagem pessoal ainda.</li>
+        </ul>
       </div>
     </div>
-
-    <div class="player" data-player="ferreira">
-      <h2>Ferreira</h2>
-
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Ffe2ef733-7eec-45ad-8d49-315d44c514a1?alt=media&token=6f7385a2-5b3e-46ee-b13a-13023327164e" alt="Ferreira">
-        </div>
-
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-        </div>
-      </div>
-
-                 <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
-    </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 85%;">
-        <option value="maior">Maior</option>
-        <option value="soma">Soma</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <input type="text" class="modificador" placeholder="Modificador (ex: +5, -2)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-    </div>
-
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
   </div>
 
-      <div class="historico">
-        <ul></ul>
-      </div>
-    </div>
-
-    <div class="player" data-player="malu">
-      <h2>Malu</h2>
-
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F5e308a3f-51e0-4bfc-a6b0-ae4a3c19d544?alt=media&token=c5bcf564-b1aa-48a9-9a87-a7609fcd1c47" alt="Malu">
-        </div>
-
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
-    </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 85%;">
-        <option value="maior">Maior</option>
-        <option value="soma">Soma</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <input type="text" class="modificador" placeholder="Modificador (ex: +5, -2)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-    </div>
-
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
+  <div class="middle-column">
+    <div id="allies-grid" class="allies-grid"></div>
   </div>
 
-      <div class="historico">
-        <ul></ul>
+  <div class="right-column">
+    <div class="history-box-container">
+      <h3>🌐 Histórico Geral da Mesa</h3>
+      <div id="historico-geral-box" class="historico-box">
+        <ul id="historico-geral-list"></ul>
       </div>
     </div>
-
-    <div class="player" data-player="simon">
-      <h2>Simon</h2>
-
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa7b33646-87ab-42f2-8ab4-1870d7ef3ada?alt=media&token=40ccb602-9407-4238-8ee1-39152711b545" alt="Simon">
-        </div>
-
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
-    </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-    <div style="margin-bottom: 8px;">
-      <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 85%;">
-        <option value="maior">Maior</option>
-        <option value="soma">Soma</option>
-      </select>
-    </div>
-
-    <div style="margin-bottom: 10px;">
-      <input type="text" class="modificador" placeholder="Modificador (ex: +5, -2)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-    </div>
-
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
   </div>
-
-      <div class="historico">
-        <ul></ul>
-      </div>
-    </div>
-
-    <div class="player" data-player="oliver">
-      <h2>Oliver Couto</h2>
-
-      <div class="perfil-status-container">
-        <div class="avatar-quadrado">
-          <img src="img/oliver.jpg" alt="Oliver Couto">
-        </div>
-
-        <div class="status-container">
-          <div class="status-row" data-status="pv">
-            <span class="status-label">PV</span>
-            <div class="bar-bg"><div class="bar-fill pv" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-          
-          <div class="status-row" data-status="sanidade">
-            <span class="status-label">SAN</span>
-            <div class="bar-bg"><div class="bar-fill sanidade" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-
-          <div class="status-row" data-status="pe">
-            <span class="status-label">PE</span>
-            <div class="bar-bg"><div class="bar-fill pe" style="width: 0%;"></div></div>
-            <div class="status-inputs">
-              <input type="number" class="status-atual" value="0" min="0">
-              <span>/</span>
-              <input type="number" class="status-max" value="0" min="0">
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="roll-area">
-    <div style="margin-bottom: 8px;">
-      <input type="text" class="nome-rolagem" placeholder="Nome do teste (ex: Ataque)" 
-             style="width: 85%; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
-    </div>
-
-    <div class="controls">
-      <input type="number" class="qtd" min="1" value="1">
-      <span>d</span>
-      <input type="number" class="faces" min="2" value="20">
-    </div>
-
-<div style="margin-bottom: 8px;">
-  <select class="tipo-calculo" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 120px; text-align-last: center;">
-    <option value="maior">Maior</option>
-    <option value="soma">Soma</option>
-  </select>
 </div>
 
-<div style="margin-bottom: 10px;">
-  <input type="text" class="modificador" placeholder="Modificador (ex: +5)" 
-         style="width: 120px; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-</div>
+    <div id="players-storage" style="display: none;">
 
-    <button class="roll-btn">Rolar</button>
-    <p class="resultado">-</p>
-  </div>
-
-      <div class="historico">
-        <ul></ul>
-      </div>
-    </div>
-
-  </div>
-  <div class="test-zone-container">
-  <h2>Área de Testes (Histórico Local)</h2>
+      <div class="player" data-player="bowen">
+        <h2>Bowen Oeste</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fb3835978-8fbc-47c5-aaee-e8607f61ae4c?alt=media&token=03d04409-5306-44e8-bf96-9bd2a591b62c" alt="Bowen">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
   
-  <div class="test-zone-content">
-    <div class="roll-area local-roll">
-      <div style="margin-bottom: 8px;">
-        <input type="text" class="nome-rolagem-local" placeholder="Nome do teste" 
-               style="width: 120px; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; text-align: center; font-size: 12px;">
-      </div>
-
-      <div class="controls">
-        <input type="number" class="qtd-local" min="1" value="1">
-        <span>d</span>
-        <input type="number" class="faces-local" min="2" value="20">
-      </div>
-
-      <div style="margin-bottom: 8px;">
-        <select class="tipo-calculo-local" style="padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: white; font-size: 12px; cursor: pointer; width: 120px; text-align-last: center;">
-          <option value="maior">Maior</option>
-          <option value="soma">Soma</option>
-        </select>
-      </div>
-
-      <div style="margin-bottom: 10px;">
-        <input type="text" class="modificador-local" placeholder="Modificador (ex: +5)" 
-               style="width: 120px; padding: 4px; border-radius: 4px; border: 1px solid #3a3a3a; background: #1a1a1a; color: #ff9f43; text-align: center; font-size: 12px; font-weight: bold;">
-      </div>
-
-      <button class="roll-btn-local">Rolar Teste</button>
-      <p class="resultado-local">-</p>
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
     </div>
 
-    <div class="historico local-historico">
-      <ul class="lista-local"></ul>
-    </div>
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
   </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
 </div>
+      </div>
+
+      <div class="player" data-player="dick">
+        <h2>Dick Roger</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa81aa686-1d95-4f96-9028-646447be3afb?alt=media&token=8beca021-40a2-4b85-96de-260e3166addf" alt="Dick">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
+      <div class="player" data-player="ferreira">
+        <h2>Ferreira</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Ffe2ef733-7eec-45ad-8d49-315d44c514a1?alt=media&token=6f7385a2-5b3e-46ee-b13a-13023327164e" alt="Ferreira">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
+      <div class="player" data-player="malu">
+        <h2>Malu</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F5e308a3f-51e0-4bfc-a6b0-ae4a3c19d544?alt=media&token=c5bcf564-b1aa-48a9-9a87-a7609fcd1c47" alt="Malu">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+      
+      <div class="player" data-player="simon">
+        <h2>Simon</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa7b33646-87ab-42f2-8ab4-1870d7ef3ada?alt=media&token=40ccb602-9407-4238-8ee1-39152711b545" alt="Simon">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
+      <div class="player" data-player="oliver">
+        <h2>Oliver Couto</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="img/oliver.jpg" alt="Oliver Couto">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="scriptRPG.js"></script>
