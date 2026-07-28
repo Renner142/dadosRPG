@@ -767,4 +767,21 @@ body {
   .test-zone-content .local-roll {
     width: 100%;
   }
+
+  /* Limita a caixa de histórico pessoal no celular e ativa scroll interno */
+  .left-column .history-box-container {
+    max-height: 200px !important;
+    height: 180px !important;
+    flex: none !important;
+  }
+
+  .left-column .historico-box {
+    overflow-y: auto !important;
+  }
+
+  /* 5. Coluna Central (Histórico Geral no meio e em altura total) */
+  .modo-mestre .middle-column {
+  height: 100%;
+  order: 0;
+}
 }
