@@ -751,6 +751,72 @@ body {
 }
 
 /* =======================================================
+   ÁREA DE TESTES LOCAL (CORRIGIDO E ALINHADO)
+   ======================================================= */
+.test-zone-container {
+  background: #181818;
+  margin: 20px 15px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px dashed #444;
+  box-sizing: border-box;
+}
+
+.test-zone-container h2 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  color: #aaa;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.test-zone-content {
+  display: flex;
+  gap: 20px;
+  align-items: stretch;
+}
+
+/* Coluna da Esquerda (Controles) com largura ideal para não espremer */
+.test-zone-content .local-roll {
+  flex-shrink: 0;
+  width: 240px; /* Aumentado para caber o modificador confortavelmente */
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Ajuste fino dos controles locais */
+.local-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px !important;
+  background: #222;
+  padding: 8px 10px;
+  border: 1px solid #3a3a3a;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+/* Ajuste dos tamanhos dos campos na área local */
+.local-controls input.qtd-dados,
+.local-controls input.faces-dado {
+  width: 36px !important;
+}
+
+.local-controls input.modificador {
+  width: 42px !important; /* Espaço suficiente para números como +15 ou -5 */
+}
+
+/* Coluna da Direita (Histórico Local) */
+.test-zone-content .local-historico {
+  flex: 1;
+  min-height: 140px;
+  max-height: 200px;
+}
+
+/* =======================================================
    RESPONSIVIDADE (CELULARES E TABLETS)
    ======================================================= */
 @media (max-width: 900px) {
