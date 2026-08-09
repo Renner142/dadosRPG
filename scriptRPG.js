@@ -479,8 +479,16 @@ function ligarRealtimeDeStatus() {
     .subscribe();
 }
 
+
+
+// Relógios ativos para cada personagem
+const relogiosPiscar = {};
+
 function notificarAlteracaoStatus(playerElement, tipoStatus) {
   if (!playerElement) return;
+
+  const playerId = playerElement.dataset.player || "player";
+  const chaveRelogio = playerId; // Chave única por PLAYER para controlar a substituição
 
   let classePiscar = "";
   if (tipoStatus === "pv") classePiscar = "piscar-pv";
@@ -489,13 +497,21 @@ function notificarAlteracaoStatus(playerElement, tipoStatus) {
 
   if (!classePiscar) return;
 
+  // 1. LIMPA qualquer brilho anterior (seja vermelho, azul ou amarelo)
   playerElement.classList.remove("piscar-pv", "piscar-sanidade", "piscar-pe");
-  void playerElement.offsetWidth; // Força reinício da animação CSS
 
+  // 2. Se já havia um relógio rodando para este player, cancela ele!
+  if (relogiosPiscar[chaveRelogio]) {
+    clearTimeout(relogiosPiscar[chaveRelogio]);
+  }
+
+  // 3. Adiciona IMEDIATAMENTE a nova cor de status
   playerElement.classList.add(classePiscar);
 
-  setTimeout(() => {
-    playerElement.classList.remove(classePiscar);
+  // 4. Inicia o novo cronômetro de 2 segundos para a NOVA cor
+  relogiosPiscar[chaveRelogio] = setTimeout(() => {
+    playerElement.classList.remove("piscar-pv", "piscar-sanidade", "piscar-pe");
+    delete relogiosPiscar[chaveRelogio];
   }, 2000);
 }
 
