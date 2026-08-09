@@ -6,6 +6,55 @@ body {
   overflow-x: hidden;
 }
 
+
+
+
+/* =======================================================
+   ANIMAÇÃO DE STATUS ALTERADO (GLOW NO CARD - 2 SEGUNDOS)
+   ======================================================= */
+
+/* Animação para Vida - PV (Vermelho) */
+@keyframes piscar-pv {
+  0%   { background-color: #252525; border-color: #383838; }
+  20%  { background-color: rgba(255, 51, 51, 0.35); border-color: #ff3333; box-shadow: 0 0 20px rgba(255, 51, 51, 0.6); }
+  80%  { background-color: rgba(255, 51, 51, 0.35); border-color: #ff3333; box-shadow: 0 0 20px rgba(255, 51, 51, 0.6); }
+  100% { background-color: #252525; border-color: #383838; box-shadow: none; }
+}
+
+/* Animação para Sanidade - SAN (Azul) */
+@keyframes piscar-sanidade {
+  0%   { background-color: #252525; border-color: #383838; }
+  20%  { background-color: rgba(51, 153, 255, 0.35); border-color: #3399ff; box-shadow: 0 0 20px rgba(51, 153, 255, 0.6); }
+  80%  { background-color: rgba(51, 153, 255, 0.35); border-color: #3399ff; box-shadow: 0 0 20px rgba(51, 153, 255, 0.6); }
+  100% { background-color: #252525; border-color: #383838; box-shadow: none; }
+}
+
+/* Animação para Pontos de Esforço - PE (Amarelo) */
+@keyframes piscar-pe {
+  0%   { background-color: #252525; border-color: #383838; }
+  20%  { background-color: rgba(255, 215, 0, 0.35); border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+  80%  { background-color: rgba(255, 215, 0, 0.35); border-color: #ffd700; box-shadow: 0 0 20px rgba(255, 215, 0, 0.6); }
+  100% { background-color: #252525; border-color: #383838; box-shadow: none; }
+}
+
+/* Classes acionadas pelo JS */
+.piscar-pv {
+  animation: piscar-pv 2s ease-in-out !important;
+}
+
+.piscar-sanidade {
+  animation: piscar-sanidade 2s ease-in-out !important;
+}
+
+.piscar-pe {
+  animation: piscar-pe 2s ease-in-out !important;
+}
+
+
+
+
+
+
 /* =======================================================
    CONTROLE DE TELAS
    ======================================================= */
