@@ -397,6 +397,7 @@ function inicializarEventosDeDigitacao() {
   document.querySelectorAll(".player").forEach(player => {
     const playerId = player.dataset.player;
 
+    // Escuta tanto a caixa do ATUAL quanto a do MÁXIMO
     player.querySelectorAll(".status-inputs input").forEach(input => {
       input.addEventListener("input", () => {
         const row = input.closest(".status-row");
@@ -404,10 +405,10 @@ function inicializarEventosDeDigitacao() {
         
         const tipoStatus = row.dataset.status;
 
-        // 1. Faz a barra andar
+        // 1. Atualiza a barrinha
         renderizarBarraVisual(row);
 
-        // 2. Faz o card piscar na sua tela imediatamente ao digitar!
+        // 2. Faz piscar na tela de quem está digitando (seja no atual ou no máximo)
         notificarAlteracaoStatus(player, tipoStatus);
 
         const atual = parseInt(row.querySelector(".status-atual").value) || 0;
@@ -432,16 +433,31 @@ function inicializarEventosDeDigitacao() {
   });
 }
 
+
+
+let statusChannel = null;
+
 function ligarRealtimeDeStatus() {
-  supabaseClient
-    .channel("mudancas-status")
+  if (statusChannel) {
+    supabaseClient.removeChannel(statusChannel);
+  }
+
+  statusChannel = supabaseClient.channel("status-realtime-global");
+
+  statusChannel
     .on(
       "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "status_players" },
+      { 
+        event: "UPDATE", 
+        schema: "public", 
+        table: "status_players" 
+      },
       (payload) => {
         const status = payload.new;
-        // Localiza o card do personagem pelo data-player (ferreira, malu, simon, oliver)
-        const playerEl = document.querySelector(`.player[data-player="${status.player.toLowerCase().trim()}"]`);
+        if (!status || !status.player) return;
+
+        const nomePlayer = status.player.toLowerCase().trim();
+        const playerEl = document.querySelector(`.player[data-player="${nomePlayer}"]`);
         if (!playerEl) return;
 
         const mapeamento = [
@@ -452,27 +468,45 @@ function ligarRealtimeDeStatus() {
 
         mapeamento.forEach(({ tipoHtml, bancoPrefixo }) => {
           const row = playerEl.querySelector(`.status-row[data-status="${tipoHtml}"]`);
-          if (row) {
-            const inputAtual = row.querySelector(".status-atual");
-            const inputMax = row.querySelector(".status-max");
+          if (!row) return;
 
-            const valorAntigo = parseInt(inputAtual?.value || 0);
-            const valorNovo = status[`${bancoPrefixo}_atual`] ?? 0;
+          const inputAtual = row.querySelector(".status-atual");
+          const inputMax = row.querySelector(".status-max");
 
-            // Se o valor mudou em relação ao que estava na tela, faz o card piscar!
-            if (valorAntigo !== valorNovo) {
-              notificarAlteracaoStatus(playerEl, tipoHtml);
-            }
+          const valorNovo = status[`${bancoPrefixo}_atual`];
+          const maxNovo = status[`${bancoPrefixo}_max`];
 
-            if (inputAtual && document.activeElement !== inputAtual) {
-              inputAtual.value = valorNovo;
+          let houveMudanca = false;
+
+          // 1. Verifica se o valor ATUAL mudou
+          if (inputAtual && valorNovo !== undefined && valorNovo !== null) {
+            const numAtualAntigo = String(inputAtual.value).trim();
+            const numAtualNovo = String(valorNovo).trim();
+
+            if (numAtualAntigo !== numAtualNovo) {
+              inputAtual.value = numAtualNovo;
+              houveMudanca = true;
             }
-            if (inputMax && document.activeElement !== inputMax) {
-              inputMax.value = status[`${bancoPrefixo}_max`] ?? 0;
-            }
-            
-            renderizarBarraVisual(row);
           }
+
+          // 2. Verifica se o valor MÁXIMO mudou
+          if (inputMax && maxNovo !== undefined && maxNovo !== null) {
+            const numMaxAntigo = String(inputMax.value).trim();
+            const numMaxNovo = String(maxNovo).trim();
+
+            if (numMaxAntigo !== numMaxNovo) {
+              inputMax.value = numMaxNovo;
+              houveMudanca = true;
+            }
+          }
+
+          // 3. Se qualquer um dos dois mudou, faz o card piscar!
+          if (houveMudanca) {
+            notificarAlteracaoStatus(playerEl, tipoHtml);
+          }
+
+          // Atualiza a barrinha visual de status
+          renderizarBarraVisual(row);
         });
       }
     )
