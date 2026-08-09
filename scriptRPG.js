@@ -404,7 +404,11 @@ function inicializarEventosDeDigitacao() {
         
         const tipoStatus = row.dataset.status;
 
+        // 1. Faz a barra andar
         renderizarBarraVisual(row);
+
+        // 2. Faz o card piscar na sua tela imediatamente ao digitar!
+        notificarAlteracaoStatus(player, tipoStatus);
 
         const atual = parseInt(row.querySelector(".status-atual").value) || 0;
         const max = parseInt(row.querySelector(".status-max").value) || 0;
@@ -436,6 +440,7 @@ function ligarRealtimeDeStatus() {
       { event: "UPDATE", schema: "public", table: "status_players" },
       (payload) => {
         const status = payload.new;
+        // Localiza o card do personagem pelo data-player (ferreira, malu, simon, oliver)
         const playerEl = document.querySelector(`.player[data-player="${status.player.toLowerCase().trim()}"]`);
         if (!playerEl) return;
 
@@ -451,8 +456,16 @@ function ligarRealtimeDeStatus() {
             const inputAtual = row.querySelector(".status-atual");
             const inputMax = row.querySelector(".status-max");
 
+            const valorAntigo = parseInt(inputAtual?.value || 0);
+            const valorNovo = status[`${bancoPrefixo}_atual`] ?? 0;
+
+            // Se o valor mudou em relação ao que estava na tela, faz o card piscar!
+            if (valorAntigo !== valorNovo) {
+              notificarAlteracaoStatus(playerEl, tipoHtml);
+            }
+
             if (inputAtual && document.activeElement !== inputAtual) {
-              inputAtual.value = status[`${bancoPrefixo}_atual`] ?? 0;
+              inputAtual.value = valorNovo;
             }
             if (inputMax && document.activeElement !== inputMax) {
               inputMax.value = status[`${bancoPrefixo}_max`] ?? 0;
@@ -464,6 +477,26 @@ function ligarRealtimeDeStatus() {
       }
     )
     .subscribe();
+}
+
+function notificarAlteracaoStatus(playerElement, tipoStatus) {
+  if (!playerElement) return;
+
+  let classePiscar = "";
+  if (tipoStatus === "pv") classePiscar = "piscar-pv";
+  else if (tipoStatus === "sanitude" || tipoStatus === "sanidade") classePiscar = "piscar-sanidade";
+  else if (tipoStatus === "pe") classePiscar = "piscar-pe";
+
+  if (!classePiscar) return;
+
+  playerElement.classList.remove("piscar-pv", "piscar-sanidade", "piscar-pe");
+  void playerElement.offsetWidth; // Força reinício da animação CSS
+
+  playerElement.classList.add(classePiscar);
+
+  setTimeout(() => {
+    playerElement.classList.remove(classePiscar);
+  }, 2000);
 }
 
 // =======================================================
