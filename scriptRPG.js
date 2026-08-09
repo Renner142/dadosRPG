@@ -111,11 +111,6 @@ function selecionarPersonagem(idPersonagem) {
   // 1. Reorganiza quem é o destaque e quem é aliado na tela
   renderizarMesa();
 
-  // 2. Limpa a flag 'data-bound' para obrigar os novos botões a registrarem os cliques
-  document.querySelectorAll(".roll-btn").forEach(btn => {
-    delete btn.dataset.bound;
-  });
-
   // 3. Re-inicializa os eventos nos inputs e botões do novo card ativo
   if (typeof inicializarEventosDeDigitacao === "function") inicializarEventosDeDigitacao();
   if (typeof inicializarBotoesDeRolagem === "function") inicializarBotoesDeRolagem();
