@@ -11,19 +11,66 @@ let personagemAtual = null;
 // =======================================================
 // 2. NAVEGAÇÃO DE TELAS E SELEÇÃO DE PERSONAGEM
 // =======================================================
+// =======================================================
+// 1. VARIÁVEIS GLOBAIS DE CONTROLADORES DE CAMPANHA
+// =======================================================
+let campanhaAtual = 'ordem-paranormal';
+let tabelaRolls = 'rolls';
+let tabelaStatus = 'status_players';
+
 function selecionarCampanha(nomeCampanha) {
+  campanhaAtual = nomeCampanha;
   console.log("Campanha selecionada:", nomeCampanha);
+
+  // Limpa classes de tema anteriores do body
+  document.body.classList.remove("tema-a-realidade", "tema-ordem-paranormal");
+
+  // Define as tabelas e adiciona a classe do tema no body
+  if (nomeCampanha === "a-realidade") {
+    tabelaRolls = "rolls_arl";
+    tabelaStatus = "status_players_arl";
+    document.body.classList.add("tema-a-realidade");
+  } else {
+    tabelaRolls = "rolls";
+    tabelaStatus = "status_players";
+    document.body.classList.add("tema-ordem-paranormal");
+  }
+
+  // Filtra os cards de personagem exibidos na tela (código original mantido)
+  const cards = document.querySelectorAll("#screen-character .char-select-card");
+  cards.forEach(card => {
+    const campanhaDoCard = card.getAttribute("data-campanha");
+    if (campanhaDoCard === nomeCampanha) {
+      card.style.display = "flex";
+    } else {
+      card.style.display = "none";
+    }
+  });
+
+  // Troca de tela (código original mantido)
   const screenCampaign = document.getElementById("screen-campaign");
   const screenCharacter = document.getElementById("screen-character");
-  
   if (screenCampaign) screenCampaign.classList.remove("active");
   if (screenCharacter) screenCharacter.classList.add("active");
 }
 
-// Executa assim que a página carrega para recuperar os testes salvos no navegador
-document.addEventListener("DOMContentLoaded", () => {
-  carregarHistoricoLocal();
-});
+function selecionarPersonagem(idPersonagem) {
+  personagemAtual = idPersonagem;
+
+  renderizarMesa();
+
+  // 🔄 Reinicia o histórico e reconecta o Realtime na tabela certa
+  carregarHistorico();
+  carregarStatusIniciais();
+  ligarRealtimeDeDados();   // <- Liga o Realtime de rolagens
+  ligarRealtimeDeStatus();  // <- Liga o Realtime de PV/SAN/PE
+
+  const screenCharacter = document.getElementById("screen-character");
+  const screenGameboard = document.getElementById("screen-gameboard");
+
+  if (screenCharacter) screenCharacter.classList.remove("active");
+  if (screenGameboard) screenGameboard.classList.add("active");
+}
 
 function rolarDadoLocal() {
   const nomeTeste = document.getElementById("local-nome-teste").value.trim() || "Teste Geral";
@@ -104,27 +151,6 @@ function trocarPersonagem() {
   if (screenCharacter) screenCharacter.classList.add("active");
 }
 
-function selecionarPersonagem(idPersonagem) {
-  personagemAtual = idPersonagem;
-  console.log("Personagem ativo selecionado:", personagemAtual);
-
-  // 1. Reorganiza quem é o destaque e quem é aliado na tela
-  renderizarMesa();
-
-  // 3. Re-inicializa os eventos nos inputs e botões do novo card ativo
-  if (typeof inicializarEventosDeDigitacao === "function") inicializarEventosDeDigitacao();
-  if (typeof inicializarBotoesDeRolagem === "function") inicializarBotoesDeRolagem();
-
-  // 4. Recarrega o histórico filtrando apenas as rolagens do novo personagem
-  carregarHistorico();
-
-  // 5. Faz a troca visual de telas
-  const screenCharacter = document.getElementById("screen-character");
-  const screenGameboard = document.getElementById("screen-gameboard");
-
-  if (screenCharacter) screenCharacter.classList.remove("active");
-  if (screenGameboard) screenGameboard.classList.add("active");
-}
 
 function renderizarMesa() {
   const featuredSlot = document.getElementById("featured-slot");
@@ -146,6 +172,13 @@ function renderizarMesa() {
   featuredSlot.innerHTML = "";
   alliesGrid.innerHTML = "";
 
+  // 🎯 NOVO: Filtra os jogadores, pegando APENAS os da campanha atual!
+  // (Se o card não tiver data-campanha no HTML, considera por padrão 'ordem-paranormal')
+  const playersDaCampanha = todosOsPlayers.filter(p => {
+    const campDoPlayer = p.getAttribute("data-campanha") || "ordem-paranormal";
+    return campDoPlayer === campanhaAtual;
+  });
+
   const idAtualNormalizado = (personagemAtual || "").toString().trim().toLowerCase();
 
   // ==========================================
@@ -153,14 +186,14 @@ function renderizarMesa() {
   // ==========================================
   if (idAtualNormalizado === "mestre") {
     if (dashboard) dashboard.classList.add("modo-mestre");
-    if (tituloModo) tituloModo.innerText = "Visão Geral (Mestre)";
+    if (tituloModo) tituloModo.innerText = `Visão Geral (Mestre - ${campanhaAtual === "a-realidade" ? "A Realidade" : "Ordem Paranormal"})`;
     
     featuredSlot.style.display = "flex";
 
-    // Divide os jogadores igualmente entre Esquerda (featuredSlot) e Direita (alliesGrid)
-    const metade = Math.ceil(todosOsPlayers.length / 2);
+    // Divide os jogadores da campanha atual igualmente entre Esquerda (featuredSlot) e Direita (alliesGrid)
+    const metade = Math.ceil(playersDaCampanha.length / 2);
 
-    todosOsPlayers.forEach((player, index) => {
+    playersDaCampanha.forEach((player, index) => {
       if (index < metade) {
         featuredSlot.appendChild(player); // Vai para o lado Esquerdo
       } else {
@@ -175,7 +208,7 @@ function renderizarMesa() {
     if (dashboard) dashboard.classList.remove("modo-mestre");
     featuredSlot.style.display = "block";
 
-    todosOsPlayers.forEach(p => {
+    playersDaCampanha.forEach(p => {
       const pId = (p.getAttribute("data-player") || "").toString().trim().toLowerCase();
 
       if (pId === idAtualNormalizado) {
@@ -185,7 +218,7 @@ function renderizarMesa() {
           tituloModo.innerText = `Jogando como: ${nomeEl ? nomeEl.innerText : pId}`;
         }
       } else {
-        alliesGrid.appendChild(p);   // Outros na coluna da direita
+        alliesGrid.appendChild(p);   // Outros aliados da MESMA campanha na direita
       }
     });
   }
@@ -207,9 +240,14 @@ function formatarHora(dateString) {
 }
 
 function montarTextoHistorico(roll) {
-  const resultados = Array.isArray(roll.results) ? roll.results : [];
+  // 🔍 LOG 1: Inspeciona o objeto completo recebido pela função
+  console.log("🔍 [montarTextoHistorico] Objeto recebido:", roll);
+
+  if (!roll) return "";
+
+  const resultados = Array.isArray(roll.results) ? roll.results : (roll.resultados || []);
   const hora = formatarHora(roll.created_at);
-  const nome = roll.nome_rolagem || "Dados";
+  const nome = roll.nome_rolagem || roll.nome || "Dados";
   const mod = roll.modificador || 0;
   
   const textoMod = mod > 0 
@@ -222,27 +260,29 @@ function montarTextoHistorico(roll) {
     ? `<span style="color: #ff4757; font-weight: bold; font-size: 10px; background: rgba(255,71,87,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,71,87,0.3); display: inline-block;">MAIOR</span>` 
     : `<span style="color: #2ed573; font-weight: bold; font-size: 10px; background: rgba(46,213,115,0.15); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(46,213,115,0.3); display: inline-block;">SOMA</span>`;
   
-  // Imagem do avatar ou um placeholder caso não exista
-  const avatarUrl = roll.avatar_url || 'https://via.placeholder.com/40';
+  // Imagem do avatar com fallback seguro
+  const avatarUrl = (roll.avatar_url && roll.avatar_url.trim() !== "") 
+    ? roll.avatar_url 
+    : 'https://placehold.co/40x40';
 
   return `
     <div style="display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 8px 0; border-bottom: 1px solid #2a2a2a;">
-      <img src="${avatarUrl}" alt="${roll.player}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; border: 1px solid #444; flex-shrink: 0; margin-top: 2px;">
+      <img src="${avatarUrl}" alt="${roll.player || ''}" style="width: 38px; height: 38px; border-radius: 6px; object-fit: cover; border: 1px solid #444; flex-shrink: 0; margin-top: 2px;" onerror="this.src='https://placehold.co/40x40';">
       
       <div style="display: flex; flex-direction: column; width: 100%; gap: 3px;">
         <div style="display: flex; align-items: center; justify-content: space-between;">
-          <span style="color: #aaa; font-size: 11px; font-weight: bold; text-transform: uppercase;">${roll.player || ''}</span>
+          <span style="color: #aaa; font-size: 11px; font-weight: bold; text-transform: uppercase;">${roll.player || 'Jogador'}</span>
           <span style="color: #555; font-size: 11px;">${hora}</span>
         </div>
         <div style="display: flex; align-items: center; gap: 6px; flex-wrap: wrap;">
           <strong style="color: #ff9f43; font-size: 14px;">${nome}</strong> 
-          <span style="color: #888; font-size: 11px;">(${roll.qtd}d${roll.faces})${textoMod}</span> 
+          <span style="color: #888; font-size: 11px;">(${roll.qtd || 1}d${roll.faces || 20})${textoMod}</span> 
           ${modoTag}
         </div>
         
         <div style="display: flex; align-items: center; gap: 8px; margin-top: 2px;">
           <span style="color: #666; font-size: 12px;">➔</span>
-          <strong style="color: #00ffff; font-size: 16px; text-shadow: 0 0 6px rgba(0,255,255,0.5);">${roll.total}</strong>
+          <strong style="color: #00ffff; font-size: 16px; text-shadow: 0 0 6px rgba(0,255,255,0.5);">${roll.total ?? 0}</strong>
           <span style="color: #666; font-size: 11px;">[${resultados.join(", ")}]</span>
         </div>
       </div>
@@ -251,14 +291,24 @@ function montarTextoHistorico(roll) {
 }
 
 function adicionarRolagemNaInterface(roll) {
+  if (!roll || !roll.id) return;
+
   const listaGeral = document.getElementById("historico-geral-list");
   const listaPessoal = document.getElementById("historico-pessoal-list");
+
+  // 🛡️ TRAVA ANTI-DUPLICAÇÃO:
+  // Se o item com esse ID já foi inserido no HTML, ignora!
+  const jaExisteGeral = listaGeral ? listaGeral.querySelector(`[data-id="${roll.id}"]`) : null;
+  if (jaExisteGeral) return;
+
+  const htmlConteudo = montarTextoHistorico(roll);
 
   // 1. Histórico Geral da Mesa
   if (listaGeral) {
     const liGeral = document.createElement("li");
     liGeral.style.listStyle = "none";
-    liGeral.innerHTML = montarTextoHistorico(roll);
+    liGeral.setAttribute("data-id", roll.id); // Guardamos o ID no elemento HTML
+    liGeral.innerHTML = htmlConteudo;
     listaGeral.prepend(liGeral);
 
     if (listaGeral.children.length > 30) {
@@ -276,7 +326,8 @@ function adicionarRolagemNaInterface(roll) {
 
     const liPessoal = document.createElement("li");
     liPessoal.style.listStyle = "none";
-    liPessoal.innerHTML = montarTextoHistorico(roll);
+    liPessoal.setAttribute("data-id", roll.id);
+    liPessoal.innerHTML = htmlConteudo;
     listaPessoal.prepend(liPessoal);
 
     if (listaPessoal.children.length > 20) {
@@ -285,72 +336,10 @@ function adicionarRolagemNaInterface(roll) {
   }
 }
 
-async function carregarHistorico() {
-  const { data, error } = await supabaseClient
-    .from("rolls")
-    .select("*")
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error("Erro ao carregar histórico:", error);
-    return;
-  }
-
-  const listaGeral = document.getElementById("historico-geral-list");
-  const listaPessoal = document.getElementById("historico-pessoal-list");
-
-  if (listaGeral) listaGeral.innerHTML = "";
-  if (listaPessoal) listaPessoal.innerHTML = '<li class="empty-msg">Nenhuma rolagem pessoal ainda.</li>';
-
-  if (data) {
-    data.forEach(roll => {
-      adicionarRolagemNaInterface(roll);
-    });
-  }
-}
-
-function ligarRealtimeDeDados() {
-  supabaseClient
-    .channel("rolls-realtime")
-    .on(
-      "postgres_changes",
-      { event: "INSERT", schema: "public", table: "rolls" },
-      (payload) => {
-        adicionarRolagemNaInterface(payload.new);
-      }
-    )
-    .subscribe();
-}
-
-// =======================================================
-// 4. BARRAS DE STATUS COM SUPABASE REALTIME
-// =======================================================
-function renderizarBarraVisual(row) {
-  const atualInput = row.querySelector(".status-atual");
-  const maxInput = row.querySelector(".status-max");
-  const barFill = row.querySelector(".bar-fill");
-
-  if (!atualInput || !maxInput || !barFill) return;
-
-  let atual = parseInt(atualInput.value) || 0;
-  let max = parseInt(maxInput.value) || 0;
-
-  if (max <= 0) {
-    barFill.style.width = "0%";
-    return;
-  }
-  
-  if (atual < 0) atual = 0;
-
-  let porcentagem = (atual / max) * 100;
-  if (porcentagem > 100) porcentagem = 100;
-
-  barFill.style.width = `${porcentagem}%`;
-}
-
+// Busca os status iniciais na tabela dinâmica
 async function carregarStatusIniciais() {
   const { data, error } = await supabaseClient
-    .from("status_players")
+    .from(tabelaStatus)
     .select("*");
 
   if (error) {
@@ -386,49 +375,234 @@ async function carregarStatusIniciais() {
   });
 }
 
+let rollsChannel = null;
+
+function ligarRealtimeDeDados() {
+  const tabelaAlvo = (typeof tabelaRolls !== "undefined") ? tabelaRolls : "rolls";
+
+  if (rollsChannel) {
+    supabaseClient.removeChannel(rollsChannel);
+    rollsChannel = null;
+  }
+
+  rollsChannel = supabaseClient.channel("rolls-channel-" + tabelaAlvo);
+
+  rollsChannel
+    .on(
+      "postgres_changes",
+      { 
+        event: "INSERT", 
+        schema: "public", 
+        table: tabelaAlvo 
+      },
+      (payload) => {
+        // Só tenta adicionar via Realtime se o payload.new REALMENTE trouxer dados
+        // (evita duplicar com o clique do botão local)
+        if (payload.new && Object.keys(payload.new).length > 0) {
+          if (typeof adicionarRolagemNaInterface === "function") {
+            adicionarRolagemNaInterface(payload.new);
+          }
+        }
+      }
+    )
+    .subscribe();
+}
+
+async function carregarHistorico() {
+  const tabelaAlvo = (typeof tabelaRolls !== "undefined") ? tabelaRolls : "rolls";
+
+  console.log("📜 [carregarHistorico] Buscando histórico na tabela:", tabelaAlvo);
+
+  const { data, error } = await supabaseClient
+    .from(tabelaAlvo)
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(`❌ [carregarHistorico] Erro ao carregar histórico da tabela ${tabelaAlvo}:`, error);
+    return;
+  }
+
+  // 🔍 LOG 3: Mostra todos os registros encontrados no banco
+  console.log(`✅ [carregarHistorico] Total de registros retornados de (${tabelaAlvo}):`, data ? data.length : 0);
+  if (data && data.length > 0) {
+    console.log(`🔍 [carregarHistorico] Primeiro registro da tabela ${tabelaAlvo}:`, data[0]);
+    console.log(`🔑 [carregarHistorico] Nomes das colunas da tabela:`, Object.keys(data[0]));
+  }
+
+  const listaGeral = document.getElementById("historico-geral-list");
+  const listaPessoal = document.getElementById("historico-pessoal-list");
+
+  if (listaGeral) listaGeral.innerHTML = "";
+  if (listaPessoal) listaPessoal.innerHTML = '<li class="empty-msg">Nenhuma rolagem pessoal ainda.</li>';
+
+  if (data) {
+    data.forEach(roll => {
+      adicionarRolagemNaInterface(roll);
+    });
+  }
+}
+
+function inicializarBotoesDeRolagem() {
+  document.querySelectorAll(".player").forEach(player => {
+    const btnAntigo = player.querySelector(".roll-btn");
+    if (!btnAntigo) return;
+
+    // 1. CLONA O BOTÃO para remover qualquer addEventListener antigo preso nele
+    const btn = btnAntigo.cloneNode(true);
+    btnAntigo.parentNode.replaceChild(btn, btnAntigo);
+
+    // 2. Adiciona APENAS UM ouvinte de clique no botão limpo
+    btn.addEventListener("click", async () => {
+      // Bloqueia cliques duplos rápidos enquanto processa
+      if (btn.disabled) return;
+      btn.disabled = true;
+
+      try {
+        const qtdEl = player.querySelector(".qtd-dados") || player.querySelector(".qtd");
+        const facesEl = player.querySelector(".faces-dado") || player.querySelector(".faces");
+        
+        const qtd = parseInt(qtdEl ? qtdEl.value : 1) || 1;
+        const faces = parseInt(facesEl ? facesEl.value : 20) || 20;
+        const nomeRolagem = player.querySelector(".nome-rolagem") ? player.querySelector(".nome-rolagem").value.trim() : "";
+        const tipoCalculo = player.querySelector(".tipo-calculo") ? player.querySelector(".tipo-calculo").value : "maior";
+
+        const modTexto = player.querySelector(".modificador") ? player.querySelector(".modificador").value.replace("+", "").trim() : "";
+        const modificador = parseInt(modTexto) || 0;
+
+        // 🔍 PROCURA O AVATAR EM VÁRIOS SELETORES POSSÍVEIS
+        const imgEl = player.querySelector(".avatar-quadrado img") || 
+                      player.querySelector(".avatar img") || 
+                      player.querySelector("img.avatar") ||
+                      player.querySelector("img");
+
+        let avatarUrl = imgEl ? imgEl.src : "";
+
+        // Se a imagem for inválida, vazia ou o via.placeholder quebrado, usa placehold.co
+        if (!avatarUrl || avatarUrl.includes("via.placeholder.com") || avatarUrl.endsWith("/")) {
+          avatarUrl = "https://placehold.co/40x40";
+        }
+
+        let resultados = [];
+        for (let i = 0; i < qtd; i++) {
+          resultados.push(Math.floor(Math.random() * faces) + 1);
+        }
+
+        let baseCalculo = (tipoCalculo === "maior") ? Math.max(...resultados) : resultados.reduce((a, b) => a + b, 0);
+        const totalFinal = baseCalculo + modificador;
+        const playerId = (player.dataset.player || "").trim().toLowerCase();
+
+        // Tabela dinâmica (rolls ou rolls_arl)
+        const tabelaAlvo = (typeof tabelaRolls !== "undefined") ? tabelaRolls : "rolls";
+
+        const dadosParaSalvar = {
+          player: playerId,
+          qtd,
+          faces,
+          results: resultados,
+          total: totalFinal,
+          nome_rolagem: nomeRolagem,
+          tipo_calculo: tipoCalculo,
+          modificador: modificador,
+          avatar_url: avatarUrl
+        };
+
+        console.log(`💾 [Salvar Rolagem] Salvando na tabela "${tabelaAlvo}":`, dadosParaSalvar);
+
+        // Salva no Supabase e pede o retorno dos dados salvos (.select())
+        const { data, error } = await supabaseClient.from(tabelaAlvo).insert(dadosParaSalvar).select();
+
+        if (error) {
+          console.error(`❌ [Salvar Rolagem] Erro no Supabase (${tabelaAlvo}):`, error);
+        } else {
+          console.log(`✅ [Salvar Rolagem] Sucesso! Registro inserido:`, data);
+          
+          // 🚀 SOLUÇÃO DIRETA:
+          // Usa os dados que acabaram de ser salvos e insere na interface local imediatamente!
+          if (data && data[0] && typeof adicionarRolagemNaInterface === "function") {
+            adicionarRolagemNaInterface(data[0]);
+          }
+        }
+
+      } catch (err) {
+        console.error("❌ Erro interno ao processar rolagem:", err);
+      } finally {
+        // Reativa o botão após 300ms para evitar duplo clique acidental
+        setTimeout(() => {
+          btn.disabled = false;
+        }, 300);
+      }
+    });
+  });
+}
+
+// =======================================================
+// 4. BARRAS DE STATUS COM SUPABASE REALTIME
+// =======================================================
+function renderizarBarraVisual(row) {
+  const atualInput = row.querySelector(".status-atual");
+  const maxInput = row.querySelector(".status-max");
+  const barFill = row.querySelector(".bar-fill");
+
+  if (!atualInput || !maxInput || !barFill) return;
+
+  let atual = parseInt(atualInput.value) || 0;
+  let max = parseInt(maxInput.value) || 0;
+
+  if (max <= 0) {
+    barFill.style.width = "0%";
+    return;
+  }
+  
+  if (atual < 0) atual = 0;
+
+  let porcentagem = (atual / max) * 100;
+  if (porcentagem > 100) porcentagem = 100;
+
+  barFill.style.width = `${porcentagem}%`;
+}
+
+
 function inicializarEventosDeDigitacao() {
   let timeouts = {};
 
   document.querySelectorAll(".player").forEach(player => {
-    const playerId = player.dataset.player;
+    const playerId = (player.dataset.player || "").trim().toLowerCase();
 
-    // Escuta tanto a caixa do ATUAL quanto a do MÁXIMO
     player.querySelectorAll(".status-inputs input").forEach(input => {
       input.addEventListener("input", () => {
         const row = input.closest(".status-row");
         if (!row) return;
-        
+
         const tipoStatus = row.dataset.status;
 
-        // 1. Atualiza a barrinha
         renderizarBarraVisual(row);
-
-        // 2. Faz piscar na tela de quem está digitando (seja no atual ou no máximo)
         notificarAlteracaoStatus(player, tipoStatus);
 
         const atual = parseInt(row.querySelector(".status-atual").value) || 0;
         const max = parseInt(row.querySelector(".status-max").value) || 0;
 
-        let dadosAtualizacao = {};
+        let dadosAtualizacao = {
+          player: playerId,
+          updated_at: new Date()
+        };
         dadosAtualizacao[`${tipoStatus}_atual`] = atual;
         dadosAtualizacao[`${tipoStatus}_max`] = max;
 
-        clearTimeout(timeouts[playerId + tipoStatus]);
-        timeouts[playerId + tipoStatus] = setTimeout(async () => {
-          await supabaseClient
-            .from("status_players")
-            .upsert({ 
-              player: playerId, 
-              ...dadosAtualizacao,
-              updated_at: new Date()
-            }, { onConflict: 'player' });
-        }, 500);
+        // Usa a tabela da campanha ativa (status_players ou status_players_arl)
+        const tabelaAlvo = (typeof tabelaStatus !== "undefined") ? tabelaStatus : "status_players";
+
+        clearTimeout(timeouts[playerId + "_" + tipoStatus]);
+        timeouts[playerId + "_" + tipoStatus] = setTimeout(async () => {
+          const { error } = await supabaseClient
+            .from(tabelaAlvo)
+            .upsert(dadosAtualizacao, { onConflict: 'player' });
+
+        }, 400);
       });
     });
   });
 }
-
-
 
 let statusChannel = null;
 
@@ -437,7 +611,7 @@ function ligarRealtimeDeStatus() {
     supabaseClient.removeChannel(statusChannel);
   }
 
-  statusChannel = supabaseClient.channel("status-realtime-global");
+  statusChannel = supabaseClient.channel("status-realtime-" + tabelaStatus);
 
   statusChannel
     .on(
@@ -445,7 +619,7 @@ function ligarRealtimeDeStatus() {
       { 
         event: "UPDATE", 
         schema: "public", 
-        table: "status_players" 
+        table: tabelaStatus // Escuta na tabela dinâmica
       },
       (payload) => {
         const status = payload.new;
@@ -473,7 +647,6 @@ function ligarRealtimeDeStatus() {
 
           let houveMudanca = false;
 
-          // 1. Verifica se o valor ATUAL mudou
           if (inputAtual && valorNovo !== undefined && valorNovo !== null) {
             const numAtualAntigo = String(inputAtual.value).trim();
             const numAtualNovo = String(valorNovo).trim();
@@ -484,7 +657,6 @@ function ligarRealtimeDeStatus() {
             }
           }
 
-          // 2. Verifica se o valor MÁXIMO mudou
           if (inputMax && maxNovo !== undefined && maxNovo !== null) {
             const numMaxAntigo = String(inputMax.value).trim();
             const numMaxNovo = String(maxNovo).trim();
@@ -495,12 +667,10 @@ function ligarRealtimeDeStatus() {
             }
           }
 
-          // 3. Se qualquer um dos dois mudou, faz o card piscar!
           if (houveMudanca) {
             notificarAlteracaoStatus(playerEl, tipoHtml);
           }
 
-          // Atualiza a barrinha visual de status
           renderizarBarraVisual(row);
         });
       }
@@ -544,55 +714,7 @@ function notificarAlteracaoStatus(playerElement, tipoStatus) {
   }, 2000);
 }
 
-// =======================================================
-// 5. BOTÕES DE ROLAGEM DE DADOS DOS PLAYERS
-// =======================================================
-function inicializarBotoesDeRolagem() {
-  document.querySelectorAll(".player").forEach(player => {
-    const btn = player.querySelector(".roll-btn");
-    if (!btn || btn.dataset.bound) return;
-    btn.dataset.bound = "true";
 
-    btn.addEventListener("click", async () => {
-      const qtdEl = player.querySelector(".qtd-dados") || player.querySelector(".qtd");
-      const facesEl = player.querySelector(".faces-dado") || player.querySelector(".faces");
-      
-      const qtd = parseInt(qtdEl ? qtdEl.value : 1) || 1;
-      const faces = parseInt(facesEl ? facesEl.value : 20) || 20;
-      const nomeRolagem = player.querySelector(".nome-rolagem") ? player.querySelector(".nome-rolagem").value.trim() : "";
-      const tipoCalculo = player.querySelector(".tipo-calculo") ? player.querySelector(".tipo-calculo").value : "maior";
-
-      const modTexto = player.querySelector(".modificador") ? player.querySelector(".modificador").value.replace("+", "").trim() : "";
-      const modificador = parseInt(modTexto) || 0;
-
-      // Busca a imagem do avatar no card do jogador
-      const imgEl = player.querySelector(".avatar-quadrado img");
-      const avatarUrl = imgEl ? imgEl.src : "";
-
-      let resultados = [];
-      for (let i = 0; i < qtd; i++) {
-        resultados.push(Math.floor(Math.random() * faces) + 1);
-      }
-
-      let baseCalculo = (tipoCalculo === "maior") ? Math.max(...resultados) : resultados.reduce((a, b) => a + b, 0);
-      const totalFinal = baseCalculo + modificador;
-      const playerId = player.dataset.player;
-
-      // Envia para o Supabase incluindo a foto do perfil
-      await supabaseClient.from("rolls").insert({
-        player: playerId,
-        qtd,
-        faces,
-        results: resultados,
-        total: totalFinal,
-        nome_rolagem: nomeRolagem,
-        tipo_calculo: tipoCalculo,
-        modificador: modificador,
-        avatar_url: avatarUrl // Salva a foto no banco!
-      });
-    });
-  });
-}
 
 // =======================================================
 // 6. ÁREA DE TESTES LOCAL (SE HOUVER NA TELA)
