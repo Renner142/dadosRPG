@@ -130,8 +130,11 @@ body {
 }
 
 .campaign-card:hover:not(:disabled) {
-  border-color: #ff9f43;
   transform: translateY(-4px);
+}
+
+.campaign-card[onclick*="ordem-paranormal"]:hover:not(:disabled) {
+  border-color: #ff9f43;
   box-shadow: 0 8px 20px rgba(255, 159, 67, 0.2);
 }
 
@@ -881,6 +884,119 @@ body {
   min-height: 140px;
   max-height: 200px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* =======================================================
+   ESTILOS ESPECÍFICOS POR CAMPANHA
+   ======================================================= */
+
+/* Estilo do Botão da Campanha "A Realidade" na Seleção */
+.campaign-card[onclick*="a-realidade"]:hover {
+  border-color: #00a2ff;
+  box-shadow: 0 8px 20px #0084ff35;
+}
+
+.campaign-card[onclick*="a-realidade"] .campaign-badge {
+  color: #fff;
+}
+
+/* TEMA DA MESA "A REALIDADE" (Quando a campanha 'a-realidade' estiver ativa) */
+/* =======================================================
+   TEMA EXCLUSIVO: A REALIDADE (CAMPANHA SECUNDÁRIA)
+   ======================================================= */
+
+/* Fundo geral da página */
+body.tema-a-realidade {
+  background: #090d11;
+  color: #e0e0e0;
+}
+
+/* Cards dos Personagens no Tema A Realidade */
+body.tema-a-realidade .player {
+  border: 1px solid #0084ff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+}
+
+body.tema-a-realidade #featured-slot .player {
+  border: 2px solid #00a2ff;
+  box-shadow: 0 0 12px rgba(0, 132, 255, 0.4);
+}
+
+/* Títulos do Modo de Jogo e Seções */
+body.tema-a-realidade #titulo-modo-jogo {
+  color: #0084ff;
+  text-shadow: 0 0 10px rgba(46, 213, 115, 0.4);
+}
+
+body.tema-a-realidade .historico-box h3 {
+  border-bottom: 2px solid #1c3823;
+}
+
+/* Botões de Rolagem na cor do tema (Verde Esmeralda / Escuro) */
+body.tema-a-realidade .roll-btn {
+  background: linear-gradient(135deg, #10ac84, #0e8365);
+  border: 1px solid #2ed573;
+  color: #ffffff;
+}
+
+body.tema-a-realidade .roll-btn:hover {
+  background: linear-gradient(135deg, #2ed573, #10ac84);
+  box-shadow: 0 0 12px rgba(46, 213, 115, 0.5);
+  cursor: pointer;
+}
+
+/* Inputs e Selects na mesa */
+body.tema-a-realidade input,
+body.tema-a-realidade select {
+  background-color: #1e1e1e;
+  border: 1px solid #17212a;
+  color: #ffffff;
+}
+
+body.tema-a-realidade input:focus,
+body.tema-a-realidade select:focus {
+  border-color: #2ed573;
+  outline: none;
+  box-shadow: 0 0 5px rgba(46, 213, 115, 0.5);
+}
+
+body.tema-a-realidade .bar-fill.pv {
+  background: linear-gradient(90deg, #2ed573, #10ac84);
+}
+
+body.tema-a-realidade .status-changed-pv {
+  animation: piscar-pv-verde 2s ease-in-out;
+}
+
+@keyframes piscar-pv-verde {
+  0%   { background-color: #252525; border-color: #383838; }
+  20%  { background-color: rgba(46, 213, 115, 0.35); border-color: #2ed573; box-shadow: 0 0 20px rgba(46, 213, 115, 0.6); }
+  80%  { background-color: rgba(46, 213, 115, 0.35); border-color: #2ed573; box-shadow: 0 0 20px rgba(46, 213, 115, 0.6); }
+  100% { background-color: #252525; border-color: #383838; box-shadow: none; }
+}
+
+
+
+
+
+
+
+
+
+
 
 /* =======================================================
    RESPONSIVIDADE (CELULARES E TABLETS)
