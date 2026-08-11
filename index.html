@@ -5,6 +5,7 @@
   <title>RPG Dados</title>
   <link rel="stylesheet" href="styleRPG.css">
   <link rel="icon" type="image/jpeg" href="img/icon.jpg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
 
@@ -14,13 +15,13 @@
       <p>Selecione uma mesa para continuar</p>
 
       <div class="campaign-grid">
-        <button class="campaign-card" onclick="selecionarCampanha('ordem-paranormal')">
+        <button class="campaign-card card-ordem-paranormal" onclick="selecionarCampanha('ordem-paranormal')">
           <div class="campaign-badge">Ativa</div>
           <h2>RPG da Ellen</h2>
           <p>"Resenha pra mim é o 'R' de RPG"</p>
         </button>
 
-        <button class="campaign-card disabled" disabled>
+        <button class="campaign-card card-a-realidade disabled" disabled>
           <h2>A Realidade</h2>
           <p>Em breve...</p>
         </button>
@@ -73,49 +74,79 @@
       <p>Selecione seu personagem de destaque ou acesse a Visão Geral</p>
 
       <div class="character-grid">
-        <div class="char-select-card" onclick="selecionarPersonagem('bowen')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('bowen')">
           <div class="char-avatar">
             <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fb3835978-8fbc-47c5-aaee-e8607f61ae4c?alt=media&token=03d04409-5306-44e8-bf96-9bd2a591b62c" alt="Bowen">
           </div>
           <h3>Bowen Oeste</h3>
         </div>
 
-        <div class="char-select-card" onclick="selecionarPersonagem('dick')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('dick')">
           <div class="char-avatar">
             <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa81aa686-1d95-4f96-9028-646447be3afb?alt=media&token=8beca021-40a2-4b85-96de-260e3166addf" alt="Dick">
           </div>
           <h3>Dick Roger</h3>
         </div>
 
-        <div class="char-select-card" onclick="selecionarPersonagem('ferreira')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('ferreira')">
           <div class="char-avatar">
             <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Ffe2ef733-7eec-45ad-8d49-315d44c514a1?alt=media&token=6f7385a2-5b3e-46ee-b13a-13023327164e" alt="Ferreira">
           </div>
           <h3>Ferreira</h3>
         </div>
 
-        <div class="char-select-card" onclick="selecionarPersonagem('malu')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('malu')">
           <div class="char-avatar">
             <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F5e308a3f-51e0-4bfc-a6b0-ae4a3c19d544?alt=media&token=c5bcf564-b1aa-48a9-9a87-a7609fcd1c47" alt="Malu">
           </div>
           <h3>Malu</h3>
         </div>
 
-        <div class="char-select-card" onclick="selecionarPersonagem('simon')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('simon')">
           <div class="char-avatar">
             <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2Fa7b33646-87ab-42f2-8ab4-1870d7ef3ada?alt=media&token=40ccb602-9407-4238-8ee1-39152711b545" alt="Simon">
           </div>
           <h3>Simon</h3>
         </div>
 
-        <div class="char-select-card" onclick="selecionarPersonagem('oliver')">
+        <div class="char-select-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('oliver')">
           <div class="char-avatar">
             <img src="img/oliver.jpg" alt="Oliver">
           </div>
           <h3>Oliver Couto</h3>
         </div>
 
-        <div class="char-select-card master-card" onclick="selecionarPersonagem('mestre')">
+        <div class="char-select-card master-card" data-campanha="ordem-paranormal" onclick="selecionarPersonagem('mestre')">
+          <div class="char-avatar master-icon">
+            <span>👁️</span>
+          </div>
+          <h3>Visão Geral</h3>
+          <p>(Mestre / Espectador)</p>
+        </div>
+
+<!-- A Realidade -->
+        <div class="char-select-card" data-campanha="a-realidade" onclick="selecionarPersonagem('gigi')">
+          <div class="char-avatar">
+            <img src="img/icon.jpg" alt="Gisele">
+          </div>
+          <h3>Gisele</h3>
+        </div>
+
+        <div class="char-select-card" data-campanha="a-realidade" onclick="selecionarPersonagem('jcj')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F148deb0b-e89b-46f5-8aa9-ea4dedbf6ea7?alt=media&token=c5e0b7af-fe6f-4808-8ea8-46ddaca12584" alt="JayCeeJay">
+          </div>
+          <h3>JayCeeJay</h3>
+        </div>
+
+        <div class="char-select-card" data-campanha="a-realidade" onclick="selecionarPersonagem('rogerio')">
+          <div class="char-avatar">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F343b2a68-a548-4e14-81f9-e04857a179aa?alt=media&token=d7ccedfe-a90f-4db4-b7b1-c256a0f8a743" alt="Rogério Pinto">
+          </div>
+          <h3>Rogério Pinto</h3>
+        </div>
+
+        <div class="char-select-card master-card" data-campanha="a-realidade" onclick="selecionarPersonagem('mestre')">
           <div class="char-avatar master-icon">
             <span>👁️</span>
           </div>
@@ -162,7 +193,7 @@
 
     <div id="players-storage" style="display: none;">
 
-      <div class="player" data-player="bowen">
+      <div class="player" data-player="bowen" data-campanha="ordem-paranormal">
         <h2>Bowen Oeste</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -196,7 +227,7 @@
 </div>
       </div>
 
-      <div class="player" data-player="dick">
+      <div class="player" data-player="dick" data-campanha="ordem-paranormal">
         <h2>Dick Roger</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -230,7 +261,7 @@
 </div>
       </div>
 
-      <div class="player" data-player="ferreira">
+      <div class="player" data-player="ferreira" data-campanha="ordem-paranormal">
         <h2>Ferreira</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -264,7 +295,7 @@
 </div>
       </div>
 
-      <div class="player" data-player="malu">
+      <div class="player" data-player="malu" data-campanha="ordem-paranormal">
         <h2>Malu</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -298,7 +329,7 @@
 </div>
       </div>
       
-      <div class="player" data-player="simon">
+      <div class="player" data-player="simon" data-campanha="ordem-paranormal">
         <h2>Simon</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -332,7 +363,7 @@
 </div>
       </div>
 
-      <div class="player" data-player="oliver">
+      <div class="player" data-player="oliver" data-campanha="ordem-paranormal">
         <h2>Oliver Couto</h2>
         <div class="perfil-status-container">
           <div class="avatar-quadrado">
@@ -366,7 +397,116 @@
 </div>
       </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+
+
+
+
+
+      <div class="player" data-player="gigi" data-campanha="a-realidade">
+        <h2>Gisele</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="img/icon.jpg" alt="Gisele">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
+      <div class="player" data-player="jcj" data-campanha="a-realidade">
+        <h2>JayCeeJay</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F148deb0b-e89b-46f5-8aa9-ea4dedbf6ea7?alt=media&token=c5e0b7af-fe6f-4808-8ea8-46ddaca12584" alt="JayCeeJay">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
+
+    <div class="player" data-player="rogerio" data-campanha="a-realidade">
+        <h2>Rogério Pinto</h2>
+        <div class="perfil-status-container">
+          <div class="avatar-quadrado">
+            <img src="https://firebasestorage.googleapis.com/v0/b/cris-ordem-paranormal.appspot.com/o/images%2F343b2a68-a548-4e14-81f9-e04857a179aa?alt=media&token=d7ccedfe-a90f-4db4-b7b1-c256a0f8a743" alt="Rogério Pinto">
+          </div>
+          <div class="status-container">
+            <div class="status-row" data-status="pv"><span class="status-label">PV</span><div class="bar-bg"><div class="bar-fill pv"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="sanidade"><span class="status-label">SAN</span><div class="bar-bg"><div class="bar-fill sanidade"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+            <div class="status-row" data-status="pe"><span class="status-label">PE</span><div class="bar-bg"><div class="bar-fill pe"></div></div><div class="status-inputs"><input type="number" class="status-atual"><span>/</span><input type="number" class="status-max"></div></div>
+          </div>
+        </div>
+        <div class="roll-area">
+  <input type="text" class="nome-rolagem" placeholder="Nome do Teste (ex: Pontaria)">
+  
+  <div class="controls">
+    <div class="dice-group">
+      <input type="number" class="qtd-dados" value="1" min="1">
+      <span>d</span>
+      <input type="number" class="faces-dado" value="20" min="2">
+    </div>
+
+    <select class="tipo-calculo">
+      <option value="maior">Maior</option>
+      <option value="soma">Soma</option>
+    </select>
+
+    <input type="text" class="modificador" placeholder="+0" value="+0">
+  </div>
+
+  <button class="roll-btn">Rolar Dados 🎲</button>
+</div>
+      </div>
+
   <script src="scriptRPG.js"></script>
 </body>
 </html>
